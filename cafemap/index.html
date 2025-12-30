@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japan Cafe Master | Edit & Delete</title>
+    <script async src="//www.instagram.com/embed.js"></script>
+    <style>
+        :root {
+            --cafe-dark: #8d6e63;
+            --cafe-light: #d7ccc8;
+            --cafe-latte: #bcaaa4;
+            --pink: #ff71ee;
+            --purple: #c186ff;
+            --blue: #a7ccff;
+            --yellow: #f8ffae;
+            --mint: #89ffc4;
+            --gold: #ffd700;
+            --red: #ff8a80;
+        }
+
+        body {
+            background-color: #fdfaf7;
+            margin: 0;
+            font-family: 'Arial Rounded MT Bold', sans-serif;
+            color: #5d4037;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--cafe-latte), var(--cafe-dark));
+            padding: 4rem 1rem;
+            color: white; text-align: center;
+            clip-path: ellipse(120% 80% at 50% 20%);
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: -25px auto 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            border-radius: 50px;
+            border: none; 
+            ackground: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--cafe-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        .nav-btn.active {
+            background: var(--mint);
+            color: #2e7d32;
+        }
+
+        .map-section {
+            max-width: 900px;
+            margin: 0 auto 40px;
+            padding: 25px;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .grid-map {
+            display: grid;
+            grid-template-columns: repeat(11, 1fr);
+            gap: 6px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .pref-btn {
+            aspect-ratio: 1;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--blue);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+            transition: 0.2s;
+        }
+
+        /* スマホ（画面幅が狭い時）専用の調整 */
+        @media (max-width: 600px) {
+            .grid-map {
+                gap: 3px; /* マス目の隙間を狭くする */
+                padding: 5px;
+            }
+
+            .pref-btn {
+                font-size: 8px; /* 文字を小さくして収める */
+                border-radius: 4px;
+                padding: 0;
+                white-space: nowrap; /* 文字の折り返しを防ぐ */
+            }
+        }
+
+        .pref-btn.complete { 
+            background: linear-gradient(45deg, var(--gold), #ff9900);
+            color: #5d4a00;
+        }
+
+        .pref-btn.active {
+            background-color: var(--cafe-dark);
+            color: white;
+        }
+
+        .pref-btn.empty {
+            background: transparent;
+        }
+
+        .add-form-section {
+            max-width: 900px;
+            margin: 0 auto 40px;
+            padding: 25px;
+            background: white;
+            border-radius: 20px;
+            border: 3px dashed var(--cafe-light);
+            text-align: center;
+        }
+
+        .add-form-section input {
+            padding: 12px;
+            border: 1px solid #efebe9;
+            border-radius: 10px;
+            margin: 5px;
+            background: #fafafa;
+            width: 220px;
+        }
+
+        #display-section {
+            max-width: 1000px;
+            margin: 0 auto 100px;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .pref-title {
+            color: var(--cafe-dark);
+            border-bottom: 4px dotted var(--cafe-latte);
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+
+        .cafe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .cafe-card {
+            background: white;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+            position: relative;
+            border: 2px solid transparent;
+            transition: 0.3s;
+            padding-bottom: 20px;
+        }
+
+        .cafe-card.visited {
+            border-color: var(--mint);
+            background-color: #f1fcf6;
+        }
+
+        .insta-embed-container {
+            width: 100%;
+            min-height: 300px;
+            background: #f0f0f0;
+            overflow: hidden;
+        }
+
+        .cafe-info {
+            padding: 20px;
+            text-align: left;
+        }
+
+        .cafe-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .cafe-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        /* 編集・削除ボタン */
+        .action-btns {
+            display: flex; gap: 8px;
+        }
+
+        .action-icon {
+            cursor: pointer;
+            font-size: 1.1rem;
+            border: none;
+            background: none;
+            padding: 5px;
+            border-radius: 5px;
+            transition: 0.2s;
+        }
+
+        .action-icon:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .edit-icon:hover {
+            color: var(--blue);
+        }
+
+        .delete-icon:hover {
+            color: var(--red);
+        }
+
+        .memo-area {
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--yellow);
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+
+        .memo-input {
+            width: 100%;
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 10px;
+            padding: 10px;
+            font-family: inherit;
+            margin-top: 8px;
+            min-height: 80px;
+            box-sizing: border-box;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            padding: 0 20px;
+        }
+
+        .insta-btn {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(45deg, #f09433, #bc1888);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .check-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--mint);
+            background: white;
+            color: #2e7d32;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .visited .check-btn {
+            background: var(--mint);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Japan Cafe Master ✨</h1>
+    <p>あなただけのカフェ図鑑、自由にアップデート。</p>
+</header>
+
+    <nav>
+        <button class="nav-btn active" id="mode-map" onclick="setMode('map')">🗺️ モード map</button>
+        <button class="nav-btn" id="mode-history" onclick="setMode('history')">✅ 行ったリスト</button>
+    </nav>
+
+    <div class="map-section" id="map-area">
+        <div class="grid-map" id="japan-map"></div>
+    </div>
+
+    <div class="add-form-section" id="form-area">
+        <h3>✨ カフェを追加</h3>
+        <input type="text" id="new-cafe-name" placeholder="カフェの名前">
+        <input type="text" id="new-cafe-insta" placeholder="Instagram 投稿URL">
+        <button class="nav-btn" style="background:var(--cafe-dark); color:white; display:inline-flex; margin-left:10px;" onclick="addNewCafe()">追加</button>
+    </div>
+
+    <div id="display-section">
+        <h2 class="pref-title" id="display-title">都道府県を選択してください</h2>
+        <div class="cafe-grid" id="cafe-list"></div>
+    </div>
+
+    <div class="sync-section" style="max-width: 400px; margin: 40px auto; padding: 15px; background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(141, 110, 99, 0.2); border-radius: 20px; text-align: center;">
+        <p style="font-size: 0.75rem; font-weight: bold; opacity: 0.6; margin-bottom: 8px;">📱 スマホと同期（魔法の合言葉）</p>
+        <textarea id="sync-text" placeholder="ここに合言葉を貼るか、生成してね" style="width: 100%; height: 50px; font-size: 0.7rem; border-radius: 10px; border: 1px solid #ddd; padding: 5px; opacity: 0.6;"></textarea>
+        <div style="display: flex; gap: 5px; margin-top: 8px;">
+            <button onclick="exportData()" style="flex:1; font-size: 0.7rem; padding: 8px; border-radius: 10px; border: none; background: var(--cafe-latte); color: white; cursor: pointer;">📜 合言葉をコピー</button>
+            <button onclick="importData()" style="flex:1; font-size: 0.7rem; padding: 8px; border-radius: 10px; border: none; background: var(--mint); color: #2e7d32; cursor: pointer;">🔮 同期を実行</button>
+        </div>
+    </div>
+
+<script>
+    // 座標データを11列のグリッドに最適化
+    const prefList = [
+        {id:'hokkaido', name:'北海道', x:10, y:0}, {id:'aomori', name:'青森', x:10, y:1}, {id:'iwate', name:'岩手', x:10, y:2}, {id:'miyagi', name:'宮城', x:10, y:3}, {id:'akita', name:'秋田', x:9, y:1}, {id:'yamagata', name:'山形', x:9, y:2}, {id:'fukushima', name:'福島', x:9, y:3}, {id:'ibaraki', name:'茨城', x:9, y:4}, {id:'tochigi', name:'栃木', x:8, y:4}, {id:'gunma', name:'群馬', x:7, y:4}, {id:'saitama', name:'埼玉', x:8, y:5}, {id:'chiba', name:'千葉', x:9, y:5}, {id:'tokyo', name:'東京', x:8, y:6}, {id:'kanagawa', name:'神奈川', x:7, y:6}, {id:'niigata', name:'新潟', x:8, y:3}, {id:'toyama', name:'富山', x:7, y:3}, {id:'ishikawa', name:'石川', x:6, y:3}, {id:'fukui', name:'福井', x:5, y:3}, {id:'yamanashi', name:'山梨', x:6, y:4}, {id:'nagano', name:'長野', x:6, y:5}, {id:'gifu', name:'岐阜', x:5, y:4}, {id:'shizuoka', name:'静岡', x:6, y:6}, {id:'aichi', name:'愛知', x:5, y:5}, {id:'mie', name:'三重', x:5, y:6}, {id:'shiga', name:'滋賀', x:4, y:4}, {id:'kyoto', name:'京都', x:4, y:5}, {id:'osaka', name:'大阪', x:3, y:5}, {id:'hyogo', name:'兵庫', x:3, y:4}, {id:'nara', name:'奈良', x:4, y:6}, {id:'wakayama', name:'和歌山', x:3, y:6}, {id:'tottori', name:'鳥取', x:2, y:3}, {id:'shimane', name:'島根', x:1, y:3}, {id:'okayama', name:'岡山', x:2, y:4}, {id:'hiroshima', name:'広島', x:1, y:4}, {id:'yamaguchi', name:'山口', x:1, y:5}, {id:'tokushima', name:'徳島', x:2, y:6}, {id:'kagawa', name:'香川', x:2, y:5}, {id:'ehime', name:'愛媛', x:1, y:6}, {id:'kochi', name:'高知', x:1, y:7}, {id:'fukuoka', name:'福岡', x:2, y:7}, {id:'saga', name:'佐賀', x:2, y:8}, {id:'nagasaki', name:'長崎', x:1, y:8}, {id:'kumamoto', name:'熊本', x:2, y:9}, {id:'oita', name:'大分', x:3, y:8}, {id:'miyazaki', name:'宮崎', x:3, y:9}, {id:'kagoshima', name:'鹿児島', x:2, y:10}, {id:'okinawa', name:'沖縄', x:1, y:10}
+    ];
+
+    let cafeData = JSON.parse(localStorage.getItem('myCafeData')) || {};
+    let visitedList = JSON.parse(localStorage.getItem('visitedCafes')) || [];
+    let memoData = JSON.parse(localStorage.getItem('cafeMemos')) || {};
+    let currentMode = 'map';
+    let currentPrefId = '';
+
+    // 同期機能：ここを追加
+    function exportData() {
+        const fullData = {
+            cafeData: cafeData,
+            visitedList: visitedList,
+            memoData: memoData
+        };
+        // 3つのデータを1つにまとめてBase64変換
+        const combined = JSON.stringify(fullData);
+        const spell = btoa(unescape(encodeURIComponent(combined)));
+    
+        document.getElementById('sync-text').value = spell;
+        document.getElementById('sync-text').select();
+        document.execCommand('copy');
+        alert("カフェ図鑑の「魔法の合言葉」をコピーしました！☕\nスマホのこの欄に貼り付けてください。");
+    }
+
+    function importData() {
+        const spell = document.getElementById('sync-text').value.trim();
+        if(!spell) return alert("合言葉を入力してください！");
+    
+        try {
+            const decoded = JSON.parse(decodeURIComponent(escape(atob(spell))));
+            if(confirm("今のデータが上書きされますがよろしいですか？")) {
+            // 各データをlocalStorageに保存
+                localStorage.setItem('myCafeData', JSON.stringify(decoded.cafeData));
+                localStorage.setItem('visitedCafes', JSON.stringify(decoded.visitedList));
+                localStorage.setItem('cafeMemos', JSON.stringify(decoded.memoData));
+            
+                alert("同期が完了しました！🌈");
+                location.reload(); // 画面を更新して反映
+            }
+        } catch(e) {
+            alert("合言葉が正しくないようです。正しくコピーできているか確認してください。");
+        }
+    }
+
+    function renderMap() {
+        const mapContainer = document.getElementById('japan-map');
+        mapContainer.innerHTML = '';
+        
+        // 11行 x 11列の空データを作成
+        const grid = Array(11).fill(null).map(() => Array(11).fill(null));
+        
+        // 都道府県を座標に配置
+        prefList.forEach(p => {
+            grid[p.y][p.x] = p;
+        });
+
+        // HTMLを生成（ここが11列ループになっているか確認！）
+        for(let y = 0; y < 11; y++) {
+            for(let x = 0; x < 11; x++) {
+                const p = grid[y][x];
+                const btn = document.createElement('div');
+                
+                if(p) {
+                    btn.className = 'pref-btn' + (currentPrefId === p.id ? ' active' : '');
+                    btn.textContent = p.name;
+                    btn.onclick = () => selectPref(p.id, p.name);
+                    
+                    const cafes = cafeData[p.id] || [];
+                    if(cafes.length > 0 && cafes.every(c => visitedList.includes(c.id))) {
+                        btn.classList.add('complete');
+                    }
+                } else {
+                    btn.className = 'pref-btn empty';
+                }
+                mapContainer.appendChild(btn);
+            }
+        }
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`mode-${mode}`).classList.add('active');
+        if(mode === 'history') {
+            document.getElementById('map-area').style.display = 'none';
+            document.getElementById('form-area').style.display = 'none';
+            document.getElementById('display-title').textContent = '✅ 行ったリスト';
+            renderHistory();
+        } else {
+            document.getElementById('map-area').style.display = 'block';
+            document.getElementById('form-area').style.display = 'block';
+            document.getElementById('display-title').textContent = currentPrefId ? `📍 ${prefList.find(p=>p.id===currentPrefId).name} のカフェ` : '都道府県を選択してください';
+            renderCafes();
+        }
+    }
+
+    function selectPref(id, name) {
+        currentPrefId = id;
+        document.getElementById('display-title').textContent = `📍 ${name} のカフェ`;
+        renderMap(); renderCafes();
+    }
+
+    function renderCafes() {
+        const list = document.getElementById('cafe-list');
+        list.innerHTML = '';
+        const cafes = cafeData[currentPrefId] || [];
+        cafes.forEach(cafe => list.appendChild(createCard(cafe)));
+        if(window.instgrm) window.instgrm.Embeds.process();
+    }
+
+    function renderHistory() {
+        const list = document.getElementById('cafe-list');
+        list.innerHTML = '';
+        Object.values(cafeData).flat().forEach(cafe => {
+            if(visitedList.includes(cafe.id)) list.appendChild(createCard(cafe));
+        });
+        if(window.instgrm) window.instgrm.Embeds.process();
+    }
+
+    function createCard(cafe) {
+        const isVisited = visitedList.includes(cafe.id);
+        const memo = memoData[cafe.id] || '';
+        const card = document.createElement('div');
+        card.className = `cafe-card ${isVisited ? 'visited' : ''}`;
+        
+        const cleanUrl = cafe.insta.split('?')[0];
+        
+        card.innerHTML = `
+            <div class="insta-embed-container">
+                <blockquote class="instagram-media" data-instgrm-permalink="${cleanUrl}" data-instgrm-version="14" style="width:100%; border:0; margin:0;"></blockquote>
+            </div>
+            <div class="cafe-info">
+                <div class="cafe-header">
+                    <h3><span>${isVisited ? '✅' : '📍'}</span> ${cafe.name}</h3>
+                    <div class="action-btns">
+                        <button class="action-icon edit-icon" title="編集" onclick="editCafe('${cafe.id}')">✏️</button>
+                        <button class="action-icon delete-icon" title="削除" onclick="deleteCafe('${cafe.id}')">🗑️</button>
+                    </div>
+                </div>
+                <div class="memo-area">
+                    <strong>💭 MEMO:</strong>
+                    <textarea class="memo-input" id="memo-${cafe.id}" onchange="saveMemo('${cafe.id}', this.value)">${memo}</textarea>
+                </div>
+            </div>
+            <div class="btn-group">
+                <a href="${cafe.insta}" target="_blank" class="insta-btn">Instagramを開く</a>
+                <button class="check-btn" onclick="toggleVisit('${cafe.id}')">${isVisited ? '行った！' : '行く！'}</button>
+            </div>
+        `;
+        return card;
+    }
+
+    // 同期機能
+    function exportData() {
+        const fullData = {
+            cafeData: cafeData,
+            visitedList: visitedList,
+            memoData: memoData
+        };
+        const spell = btoa(unescape(encodeURIComponent(JSON.stringify(fullData))));
+        document.getElementById('sync-text').value = spell;
+        document.getElementById('sync-text').select();
+        document.execCommand('copy');
+        alert("カフェ図鑑の合言葉をコピーしたよ！スマホに送ってね。☕");
+    }
+
+    function importData() {
+        const spell = document.getElementById('sync-text').value.trim();
+        if(!spell) return alert("合言葉を入力してね！");
+        try {
+            const decoded = JSON.parse(decodeURIComponent(escape(atob(spell))));
+            if(confirm("今のデータが上書きされるけど大丈夫？")) {
+                localStorage.setItem('myCafeData', JSON.stringify(decoded.cafeData));
+                localStorage.setItem('visitedCafes', JSON.stringify(decoded.visitedList));
+                localStorage.setItem('cafeMemos', JSON.stringify(decoded.memoData));
+                alert("魔法が成功したよ！同期完了。");
+                location.reload();
+            }
+        } catch(e) { alert("合言葉が違うみたい…"); }
+    }
+
+    // --- 新規追加機能: 編集 & 削除 ---
+    window.editCafe = function(cafeId) {
+        // カフェデータを検索
+        let targetPref = "";
+        let targetIndex = -1;
+        for (let prefId in cafeData) {
+            targetIndex = cafeData[prefId].findIndex(c => c.id === cafeId);
+            if (targetIndex !== -1) {
+                targetPref = prefId;
+                break;
+            }
+        }
+
+        if (targetIndex === -1) return;
+        const cafe = cafeData[targetPref][targetIndex];
+
+        const newName = prompt("新しい店名を入力してください", cafe.name);
+        if (newName === null) return; // キャンセル
+
+        const newInsta = prompt("新しいInstagramの投稿URLを入力してください", cafe.insta);
+        if (newInsta === null) return; // キャンセル
+
+        // データを更新
+        cafe.name = newName || cafe.name;
+        cafe.insta = newInsta || cafe.insta;
+        
+        saveAndRefresh();
+    }
+
+    window.deleteCafe = function(cafeId) {
+        if (!confirm("このカフェをリストから削除しますか？（「行った」記録も消えます）")) return;
+
+        // データを削除
+        for (let prefId in cafeData) {
+            cafeData[prefId] = cafeData[prefId].filter(c => c.id !== cafeId);
+        }
+        // 訪問リストからも削除
+        visitedList = visitedList.filter(id => id !== cafeId);
+        // メモからも削除
+        delete memoData[cafeId];
+
+        saveAndRefresh();
+    }
+
+    function saveAndRefresh() {
+        localStorage.setItem('myCafeData', JSON.stringify(cafeData));
+        localStorage.setItem('visitedCafes', JSON.stringify(visitedList));
+        localStorage.setItem('cafeMemos', JSON.stringify(memoData));
+        
+        if (currentMode === 'history') renderHistory();
+        else renderCafes();
+        renderMap();
+    }
+
+    // ----------------------------
+
+    window.toggleVisit = function(cafeId) {
+        const index = visitedList.indexOf(cafeId);
+        if(index > -1) {
+            visitedList.splice(index, 1);
+        } else {
+            visitedList.push(cafeId);
+            const now = new Date();
+            const dateStr = `【${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} 訪問】\n`;
+            const memoEl = document.getElementById(`memo-${cafeId}`);
+            if(memoEl) { memoEl.value = dateStr + memoEl.value; saveMemo(cafeId, memoEl.value); }
+        }
+        saveAndRefresh();
+    }
+
+    window.saveMemo = function(cafeId, text) {
+        memoData[cafeId] = text;
+        localStorage.setItem('cafeMemos', JSON.stringify(memoData));
+    }
+
+    window.addNewCafe = function() {
+        const name = document.getElementById('new-cafe-name').value;
+        const insta = document.getElementById('new-cafe-insta').value;
+        if(!currentPrefId) { alert('先に地図から県を選んでね！'); return; }
+        if(!name || !insta) { alert('名前とURLを入力してね！'); return; }
+
+        const newCafe = { id: 'c-' + Date.now(), name, insta };
+        if(!cafeData[currentPrefId]) cafeData[currentPrefId] = [];
+        cafeData[currentPrefId].push(newCafe);
+        
+        document.getElementById('new-cafe-name').value = '';
+        document.getElementById('new-cafe-insta').value = '';
+        saveAndRefresh();
+    }
+
+    renderMap();
+</script>
+</body>
+</html>

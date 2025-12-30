@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Dreamy Typing Pop</title>
+    <style>
+        :root {
+            --pink: #ff71ee;
+            --purple: #c186ff;
+            --blue: #a7ccff;
+            --yellow: #f8ffae;
+            --mint: #89ffc4;
+        }
+
+        body {
+            background: linear-gradient(180deg, var(--blue), var(--pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial Rounded MT Bold', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- 背景の雲アニメーション --- */
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.5;
+            z-index: 1;
+            animation: moveClouds linear infinite;
+        }
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+        /* 雲の形と動きのバリエーション */
+        .c1 { width: 120px; height: 40px; top: 10%; animation-duration: 25s; }
+        .c2 { width: 180px; height: 60px; top: 30%; animation-duration: 40s; opacity: 0.3; }
+        .c3 { width: 100px; height: 30px; top: 70%; animation-duration: 30s; }
+
+        @keyframes moveClouds {
+            from { left: -200px; }
+            to { left: 100vw; }
+        }
+
+        /* --- キャラクター配置 --- */
+        #character {
+            position: absolute;
+            left: 50px;
+            bottom: 50px;
+            width: 150px;
+            z-index: 5;
+            transition: transform 0.2s;
+            filter: drop-shadow(5px 5px 0px rgba(0,0,0,0.1));
+        }
+        .jump { animation: characterJump 0.4s ease; }
+        @keyframes characterJump {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-30px) rotate(5deg); }
+        }
+
+        /* --- ゲームコンテナ --- */
+        #game-container {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            padding: 2rem;
+            border-radius: 30px;
+            box-shadow: 0 15px 0px var(--purple);
+            width: 480px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        #timer { background: var(--yellow); padding: 5px 15px; border-radius: 20px; font-weight: bold; }
+        #word { font-size: 4.5rem; margin: 10px 0; color: var(--purple); text-shadow: 3px 3px 0px var(--blue); }
+        
+        input {
+            font-size: 1.8rem;
+            padding: 12px;
+            width: 90%;
+            border: 4px solid var(--blue);
+            border-radius: 15px;
+            text-align: center;
+            outline: none;
+        }
+
+        /* パーティクル */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            z-index: 100;
+            animation: explode 0.6s ease-out forwards;
+        }
+        @keyframes explode {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
+        /* 結果画面 */
+        #result-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white;
+            border-radius: 30px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+        }
+        .share-btn {
+            background-color: #000; color: white; padding: 12px 24px;
+            border-radius: 50px; text-decoration: none; font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="cloud c1"></div>
+<div class="cloud c2" style="animation-delay: -5s;"></div>
+<div class="cloud c3" style="animation-delay: -15s;"></div>
+
+<div id="character">
+    <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" fill="#fff" stroke="#c186ff" stroke-width="2"/>
+        <circle cx="35" cy="40" r="8" fill="#c186ff"/>
+        <circle cx="65" cy="40" r="8" fill="#c186ff"/>
+        <path d="M45 60 Q50 70 55 60" fill="none" stroke="#ff71ee" stroke-width="3" stroke-linecap="round"/>
+        <path d="M10 40 Q0 50 10 60" fill="none" stroke="#a7ccff" stroke-width="4"/>
+        <path d="M90 40 Q100 50 90 60" fill="none" stroke="#a7ccff" stroke-width="4"/>
+    </svg>
+</div>
+
+<div id="game-container">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <div id="level" style="color:var(--purple); font-weight:bold;">Lv 1</div>
+        <div id="timer">60s</div>
+    </div>
+    
+    <div id="combo-display" style="height:25px; color:var(--pink); font-style:italic; font-weight:bold;"></div>
+    <div id="kanji" style="color:#aaa;">Ready?</div>
+    <div id="word">start</div>
+    <input type="text" id="input-field" placeholder="Type here!" autocomplete="off">
+
+    <div id="result-screen">
+        <h2 style="color:var(--purple);">Finish!</h2>
+        <div style="font-size: 2rem;">Score: <span id="final-score">0</span></div>
+        <a id="share-link" class="share-btn" target="_blank">Xでシェアする</a>
+        <button onclick="location.reload()" style="margin-top:15px; cursor:pointer; border:none; background:none; color:#888; text-decoration:underline;">Retry</button>
+    </div>
+</div>
+
+<script>
+    const palette = ['#ff71ee', '#c186ff', '#a7ccff', '#f8ffae', '#89ffc4'];
+    
+    // 単語レパートリーを大幅に増やしました
+    const wordList = {
+        1: [ // レベル1: 短くて打ちやすい単語
+            {k:"林檎", r:"apple"}, {k:"猫", r:"cat"}, {k:"空", r:"sky"}, 
+            {k:"犬", r:"dog"}, {k:"海", r:"sea"}, {k:"本", r:"book"}, 
+            {k:"太陽", r:"sun"}, {k:"お茶", r:"tea"}, {k:"青", r:"blue"}, 
+            {k:"赤", r:"red"}, {k:"魚", r:"fish"}, {k:"鳥", r:"bird"},
+            {k:"お米", r:"rice"}, {k:"雨", r:"rain"}, {k:"星", r:"star"}
+        ],
+        2: [ // レベル2: 少し長めの日常単語
+            {k:"音楽", r:"music"}, {k:"学校", r:"school"}, {k:"太陽", r:"orange"}, 
+            {k:"銀河", r:"galaxy"}, {k:"電車", r:"train"}, {k:"時計", r:"clock"}, 
+            {k:"友情", r:"friend"}, {k:"笑顔", r:"smile"}, {k:"春", r:"spring"}, 
+            {k:"夏", r:"summer"}, {k:"秋", r:"autumn"}, {k:"冬", r:"winter"},
+            {k:"果物", r:"fruits"}, {k:"野菜", r:"vege"}, {k:"料理", r:"cook"}
+        ],
+        3: [ // レベル3: 長い単語や少し難しい単語
+            {k:"可能性", r:"infinity"}, {k:"宇宙", r:"universe"}, {k:"輝き", r:"sparkle"}, 
+            {k:"挑戦", r:"challenge"}, {k:"冒険", r:"adventure"}, {k:"図書館", r:"library"}, 
+            {k:"新幹線", r:"shinkansen"}, {k:"遊園地", r:"amusement"}, {k:"教科書", r:"textbook"}, 
+            {k:"奇跡", r:"miracle"}, {k:"最高", r:"awesome"}, {k:"夢", r:"dreamer"},
+            {k:"未来", r:"future"}, {k:"秘密", r:"secret"}, {k:"世界", r:"world"}
+        ]
+    };
+
+    // --- 以下、システムコード（前回のまま） ---
+    let score = 0, combo = 0, timeLeft = 60, isPlaying = false, timerId = null;
+    let current = {k: "準備完了", r: "start"};
+
+    const inputEl = document.getElementById('input-field');
+    const wordEl = document.getElementById('word');
+    const charEl = document.getElementById('character');
+    const comboEl = document.getElementById('combo-display');
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(f, d) {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.frequency.value = f;
+        g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime + d);
+    }
+
+    function createParticles(x, y) {
+        for (let i = 0; i < 15; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.width = p.style.height = `${Math.random() * 10 + 5}px`;
+            p.style.backgroundColor = palette[Math.floor(Math.random() * palette.length)];
+            p.style.setProperty('--tx', `${(Math.random() - 0.5) * 400}px`);
+            p.style.setProperty('--ty', `${(Math.random() - 0.5) * 400}px`);
+            p.style.left = `${x}px`; p.style.top = `${y}px`;
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 600);
+        }
+    }
+
+    function setWord() {
+        const lv = Math.min(3, Math.floor(score / 10) + 1);
+        document.getElementById('level').textContent = `Lv ${lv}`;
+        const list = wordList[lv];
+        current = list[Math.floor(Math.random() * list.length)];
+        document.getElementById('kanji').textContent = current.k;
+        wordEl.textContent = current.r;
+        inputEl.value = "";
+    }
+
+    inputEl.addEventListener('input', () => {
+        if (!isPlaying) {
+            isPlaying = true;
+            timerId = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = `${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    document.getElementById('result-screen').style.display = 'flex';
+                    document.getElementById('final-score').textContent = score;
+                    const text = encodeURIComponent(`タイピングゲームでスコア ${score}点！ #TypingPop`);
+                    document.getElementById('share-link').href = `https://twitter.com/intent/tweet?text=${text}`;
+                }
+            }, 1000);
+        }
+
+        if (inputEl.value === current.r) {
+            combo++;
+            score += (combo > 1 ? 2 : 1);
+            timeLeft += 1;
+            playSound(600 + (combo * 20), 0.1);
+            const rect = wordEl.getBoundingClientRect();
+            createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
+            charEl.classList.remove('jump');
+            void charEl.offsetWidth;
+            charEl.classList.add('jump');
+            if (combo > 1) comboEl.textContent = `${combo} COMBO!`;
+            setWord();
+        } else if (!current.r.startsWith(inputEl.value)) {
+            combo = 0;
+            comboEl.textContent = "";
+            playSound(150, 0.2);
+            document.body.style.backgroundColor = '#333';
+            setTimeout(() => document.body.style.backgroundColor = '', 100);
+        }
+    });
+
+    setWord();
+</script>
+</body>
+</html>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>笑いの殿堂 -Road to Grand Prix-</title>
+    <style>
+        :root { --main-gold: #f0ad4e; --bg-dark: #121212; }
+        body { background-color: var(--bg-dark); color: #e0e0e0; font-family: "Meiryo", sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .game-wrapper { width: 600px; background: #222; border: 4px solid #444; border-radius: 10px; overflow: hidden; }
+        
+        /* ヘッダー・ステータス */
+        .header { background: #333; padding: 15px; display: grid; grid-template-columns: 1fr 1fr; border-bottom: 2px solid var(--main-gold); }
+        .stat-item { margin: 5px 0; font-size: 0.9em; }
+        
+        /* シルエット演出 */
+        .visual-area { height: 180px; background: linear-gradient(to bottom, #111, #333); display: flex; justify-content: center; align-items: flex-end; gap: 40px; padding-bottom: 20px; position: relative; }
+        .silhouette { width: 60px; height: 140px; background-color: #555; clip-path: polygon(50% 0%, 80% 10%, 90% 40%, 80% 90%, 20% 90%, 10% 40%, 20% 10%); transition: background-color 0.5s; position: relative; }
+        /* ネクタイアイコンの代わり */
+        .silhouette::after { content: "▼"; position: absolute; top: 15%; left: 40%; font-size: 10px; color: rgba(255,255,255,0.3); }
+
+        /* メインメニュー */
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
+        button { padding: 12px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; background: #444; color: white; transition: 0.2s; }
+        button:hover { background: #555; }
+        button.action-btn { background: var(--main-gold); color: #000; }
+        
+        /* ライブ実況ログ */
+        #log-screen { height: 120px; background: #000; margin: 15px; padding: 10px; border: 1px inset #444; overflow-y: auto; font-size: 0.95em; }
+        .bakusho { color: #ff4444; font-size: 1.5em; font-weight: 900; }
+        .suberi { color: #44aaff; font-size: 0.8em; }
+
+        /* 優勝者発表のコケるやつ */
+        .koketa {
+            transform: rotate(-90deg) translateY(40px);
+            transition: transform 0.2s ease-in;
+            background-color: #aa0000 !important;
+        }
+    
+        /* 1. エンディング用の真っ白な幕 */
+        #ending-curtain {
+            position: fixed;
+            top: 0; 
+            left: 0;
+            width: 100%; 
+            height: 100%;
+            background: white;
+            display: none; /* 最初は隠しておく */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* 2. スタッフロールと「完」を包むエリア */
+        #ending-content { 
+            text-align: center; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 3. これまでの歩み（スタッフロール） */
+        #staff-roll {
+            color: #666; /* 少し薄いグレーでエモさを演出 */
+            font-size: 18px;
+            line-height: 2;
+            margin-bottom: 20px;
+            opacity: 0; /* 最初は透明 */
+            font-family: "serif";
+            transition: opacity 2s ease-in; /* じわっと出す用 */
+        }
+
+        /* 4. 最後の「完」 */
+        #ending-text {
+            color: black;
+            font-size: 100px;
+            font-family: "serif";
+            font-weight: bold;
+            opacity: 0; /* 最初は透明 */
+            transition: opacity 3s ease-in; /* じわっと出す用 */
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-wrapper">
+        <div class="header">
+            <div>
+                <div class="stat-item">コンビ: <strong id="combi-name-display">未設定</strong></div>
+                <div class="stat-item">所持金: <span id="money">0</span>円</div>
+                <div class="stat-item">相方の機嫌: <span id="mood">50</span>%</div>
+            </div>
+            <div style="text-align: right;">
+                <div class="stat-item">大会まで: <span id="days">30</span>日</div>
+                <div class="stat-item">衣装ランク: <span id="outfit-rank">F</span></div>
+                <div class="stat-item">知名度: <span id="fame">0</span></div>
+            </div>
+        </div>
+
+        <div class="visual-area">
+            <div id="p1" class="silhouette"></div>
+            <div id="p2" class="silhouette"></div>
+        </div>
+
+        <div id="log-screen">劇場の楽屋へようこそ。まずはコンビ名を決めよう。</div>
+
+        <div class="menu-grid">
+            <button class="action-btn" onclick="openNetaMenu()">【ネタを書く】</button>
+            <button class="action-btn" onclick="performLive()">【ライブ出演】</button>
+            <button onclick="workBaito()">【営業・バイト】</button>
+            <button onclick="startRadio()">【深夜ラジオ】</button>
+            <button onclick="snsMarketing()">【SNS運用】</button>
+            <button onclick="shopMenu()">【衣装ショップ】</button>
+        </div>
+    </div>
+
+    <!-- エンドロール -->
+    <div id="ending-curtain">
+        <div id="ending-content">
+            <div id="staff-roll"></div>
+            <div id="ending-text">完</div>
+        </div>
+    </div>
+
+<script>
+    // --- ゲーム状態 ---
+    let state = {
+        money: 1000,
+        days: 30,
+        mood: 80,
+        fame: 0,
+        outfit: { name: "ヨレヨレTシャツ", rank: "D", bonus: 0, color: "#777", synergy: 0.8 },
+        skill: { boke: 10, tsukkomi: 10, kousei: 10 },
+        isShobufuku: false,
+        totalNetaCount: 0, // 作ったネタの総数
+        bestScore: 0,      // これまでのライブでの最高得点
+    };
+
+    const trendList = ["シュール", "あるある", "リズム", "毒舌", "ベタ"];
+    let currentTrend = "シュール";
+    let currentM1Stage = 0;
+    let cName = prompt("コンビ名を入力してください", "毒舌マシュマロ");
+    document.getElementById('combi-name-display').innerText = cName;
+
+    const M1_STAGES = [
+        { name: "1回戦", quota: 50,  fameGain: 100,  msg: "緊張の初戦。まずは自分たちの形を見せろ！" },
+        { name: "2回戦", quota: 80,  fameGain: 300,  msg: "少しずつプロの壁が見えてきた。安定感が重要。" },
+        { name: "3回戦", quota: 120, fameGain: 800,  msg: "ここからが本当の勝負。構成力が問われる。" },
+        { name: "準々決勝", quota: 180, fameGain: 2000, msg: "会場の熱気も最高潮！全国のライバルが集結。" },
+        { name: "準決勝", quota: 250, fameGain: 5000, msg: "ファイナリストまであと一歩。伝説を作れ。" },
+        { name: "決勝",   quota: 350, fameGain: 20000, msg: "せり上がりから登場。サンパチマイクが待っている。" }
+    ];
+
+    // --- 共通処理 ---
+    function updateUI() {
+        document.getElementById('money').innerText = state.money;
+        document.getElementById('days').innerText = state.days;
+        document.getElementById('mood').innerText = state.mood;
+        document.getElementById('fame').innerText = state.fame;
+        document.getElementById('outfit-rank').innerText = state.outfit.rank;
+        document.getElementById('p1').style.backgroundColor = state.outfit.color;
+        document.getElementById('p2').style.backgroundColor = state.outfit.color;
+    }
+
+    function addLog(html) {
+        const log = document.getElementById('log-screen');
+        log.innerHTML = `<div style="margin-bottom:8px;">${html}</div>` + log.innerHTML;
+    }
+
+    // --- アクション ---
+    function workBaito() {
+        if(state.days <= 0) { startM1Tournament(); return; }
+        let earned = 5000 + (state.fame * 0.1);
+        state.money += Math.floor(earned);
+        state.days--;
+        state.mood -= 10;
+        addLog(`【バイト】汗水流して ${Math.floor(earned)}円 稼いだ。相方の機嫌が下がった。`);
+        checkDissolution();
+        updateUI();
+    }
+
+    // 衣装・出囃子ショップ
+    function shopMenu() {
+        let msg = "何を買う？（現在の所持金: " + state.money + "円）\n";
+        msg += "1:正統派ネイビー(5000円/ランクC)\n";
+        msg += "2:真っ赤なダブル(15000円/ランクB)\n";
+        msg += "3:ラメ入りスパンコール(50000円/ランクA)\n";
+        msg += "4:特注の出囃子(30000円/ライブ加点)";
+
+        let choice = prompt(msg);
+        if(choice == "1" && state.money >= 5000) {
+            state.outfit = { name: "正統派ネイビー", rank: "C", bonus: 20, color: "#000080", synergy: 1.2 };
+            state.money -= 5000;
+            addLog("【衣装】正統派ネイビーを購入。審査員ウケが良くなった。");
+        } else if(choice == "2" && state.money >= 15000) {
+            state.outfit = { name: "真っ赤なダブル", rank: "B", bonus: 40, color: "#cc0000", synergy: 1.0 };
+            state.money -= 15000;
+            addLog("【衣装】赤いダブルを購入。テレビ映えしそうだ。");
+        } else if(choice == "3" && state.money >= 50000) {
+            state.outfit = { name: "ラメ入りスパンコール", rank: "A", bonus: 80, color: "#ffd700", synergy: 1.5 };
+            state.money -= 50000;
+            addLog("【衣装】ラメスーツを購入！王者の風格が出てきた。");
+        } else if(choice == "4" && state.money >= 30000) {
+            state.hasDebayashi = true;
+            state.money -= 30000;
+            addLog("【出囃子】自分たち専用の曲を購入！ライブのつかみが安定する。");
+        } else {
+            addLog("購入をキャンセルしたか、お金が足りません。");
+        }
+        updateUI();
+    }
+
+    function performLive() {
+        if(state.days <= 0) { startM1Tournament(); return; }
+    
+        if(state.outfit.rank === "D" && Math.random() > 0.5) {
+            addLog("<span class='suberi'>【地下ライブ】衣装が汚すぎて出禁になりかけた。</span>");
+        }
+
+        let score = (state.skill.boke + state.skill.tsukkomi) * (state.mood / 100) * state.outfit.synergy + state.outfit.bonus;
+        let total = score + Math.random() * 50;
+
+        state.days--;
+        state.fame += Math.floor(total / 10);
+    
+        if(total > 80) {
+            addLog(`<span class='bakusho'>ドカン！！ 大爆笑！</span> (${Math.floor(total)}点)`);
+            state.mood = Math.min(100, state.mood + 10);
+        } else {
+            addLog(`<span class='suberi'>……シーン。スベった。</span> (${Math.floor(total)}点)`);
+            state.mood -= 10;
+        }
+
+        // 最高得点を更新する
+        if(total > state.bestScore) {
+            state.bestScore = Math.floor(total);
+        }
+
+        checkDissolution();
+        updateUI();
+    }
+
+    function openNetaMenu() {
+        if(state.days <= 0) {
+            startM1Tournament(); return;
+        }
+
+        let selectedType = prompt(`どんなネタを書く？\n1:シュール 2:あるある 3:リズム 4:毒舌 5:ベタ`);
+        let typeName = trendList[parseInt(selectedType) - 1] || "ベタ";
+    
+        let bonusMult = (typeName === currentTrend) ? 2 : 1;
+        if (bonusMult === 2) addLog("<strong>トレンド一致！神ネタの予感！</strong>");
+
+        state.skill.boke += 5 * bonusMult;
+        state.skill.tsukkomi += 5 * bonusMult;
+        state.days--;
+        state.totalNetaCount++
+
+    
+        addLog(`【ネタ作り】${typeName}ネタを強化。腕が上がった。`);
+        updateTrend();
+        updateUI();
+    }
+
+    // 状態変数に「ラジオ経験」を隠しパラメータとして追加しておくと便利
+    state.radioPower = 0; 
+
+    function startRadio() {
+        if(state.days <= 0) return;
+        state.days--;
+    
+        state.mood = Math.min(100, state.mood + 15); // 相方の機嫌が回復
+        state.radioPower += 5; // ライブ時の最低運値を底上げする用
+    
+        addLog("【ラジオ】深夜の生放送。コアなファン層が形成され、相方との絆も深まった。");
+        updateUI();
+    }
+
+    // ネットニュース
+    function snsMarketing() {
+        if(state.days <= 0) return;
+        state.days--;
+        let luck = Math.random();
+
+        if (luck > 0.8) { // バズった時
+            const newsTitles = [
+                `「${cName}、次世代のスター候補か？」`,
+                `「【速報】${cName}のネタが中毒性高すぎると話題」`,
+                `「${cName}、SNSでまさかの大バズり。フォロワー急増中」`
+            ];
+            let title = newsTitles[Math.floor(Math.random() * newsTitles.length)];
+            state.fame += 1000;
+            addLog(`<span style="color:orange;">【ネットニュース】${title}</span>`);
+        } else {
+            state.fame += 100;
+            addLog("【SNS】地道な更新。少しずつファンが増えている。");
+        }
+        updateUI();
+    }
+
+    // --- 大会・イベント ---
+    function startM1Tournament() {
+        let stage = M1_STAGES[currentM1Stage];
+    
+        // --- サンパチマイク演出 ---
+        addLog("<div style='color:white; background:#555; text-align:center; padding:5px;'> ｜ <br> ｜ <br> 「…どうもー！」 </div>");
+        addLog(`<div style="border: 2px double gold; padding: 10px; background:#444;">【M-1 ${stage.name}】 ${stage.msg}</div>`);
+
+        let score = (state.skill.boke + state.skill.tsukkomi) * (state.mood / 100) * state.outfit.synergy + state.outfit.bonus;
+    
+        // 審査員の相性チェック (決勝のみ)
+        if (stage.name === "決勝") {
+            let judgeBonus = 0;
+            const judges = [
+                { name: "大御所師匠", preference: "正統派ネイビー" },
+                { name: "中堅コント師", preference: "シュール" },
+                { name: "テレビ局P", preference: "ラメ入りスパンコール" }
+            ];
+            judges.forEach(j => {
+                if (state.outfit.name === j.preference || currentTrend === j.preference) {
+                    judgeBonus += 20;
+                    addLog(`<small>${j.name}：好みのタイプだね…</small>`);
+                }
+            });
+            score += judgeBonus;
+        }
+
+        if (state.hasDebayashi) score += 15;
+        let finalScore = Math.floor(score + Math.random() * 40);
+
+        // --- 静寂とCMの演出 ---
+        addLog("得点、出ました。");
+    
+        setTimeout(() => { addLog("………………"); }, 1000);
+        setTimeout(() => { addLog("………………"); }, 2000);
+
+        // 決勝の場合のみ、発表前にタメを作る
+        if (stage.name === "決勝") {
+            // 1. CM前のタメ（3秒）
+            setTimeout(() => { 
+                addLog("<strong style='color:#00ffff;'>「優勝者は……………………今年も…！………CMのあとです！」</strong>"); 
+            }, 3000);
+        
+            // 2. ズッコケ（3.2秒）
+            setTimeout(() => {
+                addLog("<strong>（ズコーッ！！）</strong>");
+                document.getElementById('p1').classList.add('koketa');
+                document.getElementById('p2').classList.add('koketa');
+            }, 3200);
+
+            // 3. CM明け（5.5秒後）
+            setTimeout(() => {
+                document.getElementById('p1').classList.remove('koketa');
+                document.getElementById('p2').classList.remove('koketa');
+                addLog("（CM明け）");
+
+                // --- ここを修正：CM前と同じく「3秒」溜めてから結果発表 ---
+                setTimeout(() => {
+                    displayM1Result(finalScore, stage);
+                }, 3000); // ここを3000(3秒)にすることで、CM前と同じ緊張感になります
+
+            }, 5500);
+        } else {
+            // 決勝以外は通常通り
+            setTimeout(() => {
+                displayM1Result(finalScore, stage);
+            }, 3000);
+        }
+    }
+
+    // 判定処理をまとめたヘルパー関数（エラー回避のため分離）
+    function displayM1Result(finalScore, stage) {
+        addLog(`結果：<strong>${finalScore}点</strong>（通過ライン: ${stage.quota}点）`);
+
+        if (finalScore >= stage.quota) {
+            state.fame += stage.fameGain;
+
+            if (currentM1Stage < M1_STAGES.length - 1) {
+                addLog(`<span style="color:yellow;">祝・${stage.name}通過！</span>`);
+                currentM1Stage++;
+                state.days = 3; 
+            } else {
+                // --- 優勝の演出フロー ---
+                addLog("<span class='bakusho'>【優勝】第21代王者は…「" + cName + "」！！</span>");
+
+                // 3秒待ってから紙吹雪を開始（名前を読ませる）
+                setTimeout(() => {
+                    const count = 15;
+                    const interval = 200;
+                    for(let i = 0; i < count; i++) {
+                        setTimeout(() => {
+                            const colors = ['#FFD700', '#FF69B4', '#00FFFF', '#ADFF2F', '#FFA500'];
+                            const icons = ['🌸', '✨', '🎊', '✨', '⭐', '🎉'];
+                            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                            const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+                            const spaces = "&nbsp;".repeat(Math.floor(Math.random() * 20));
+                            addLog(`<div style="color:${randomColor}; font-size:1.2em;">${spaces}${randomIcon} ✨ ${randomIcon}${spaces}</div>`);
+                        }, i * interval); 
+                    }
+                    
+                    // 【修正】紙吹雪が終わるのが (15 * 200ms = 3秒後)
+                    // そこから 2秒待機して白転させるため、紙吹雪開始から 5秒後に実行
+                    setTimeout(triggerEnding, 5000);
+
+                }, 3000);
+            }
+        } else {
+            // 敗退時のズッコケ演出（ここに入れると「名前が出た瞬間」にこけます）
+            document.getElementById('p1').classList.add('koketa');
+            document.getElementById('p2').classList.add('koketa');
+            
+            if (stage.name === "準決勝") {
+                tryHaishaFukkatsu(finalScore);
+            } else {
+                addLog(`<span class='suberi'>${stage.name}敗退...。コンビの夏が終わった。</span>`);
+            }
+        }
+        updateUI();
+    }
+
+    function tryHaishaFukkatsu(score) {
+        addLog("【敗者復活戦】視聴者投票の結果は…？");
+        if (score + Math.random() * 50 > 280) {
+            addLog("<span style='color:orange;'>奇跡の敗者復活！決勝へ！</span>");
+            currentM1Stage = 5;
+            state.days = 1;
+        } else {
+            addLog("惜しくも敗退。");
+        }
+    }
+
+    function checkDissolution() {
+        if (state.mood < 20) {
+            if (confirm("相方「解散だ！」土下座して引き止めますか？（所持金半分）")) {
+                state.money = Math.floor(state.money / 2);
+                state.mood = 50;
+                addLog("【イベント】必死に引き止めた。");
+            } else {
+                alert("コンビ解散。"); location.reload();
+            }
+        }
+    }
+
+    function updateTrend() {
+        if (state.days % 5 === 0) {
+            currentTrend = trendList[Math.floor(Math.random() * trendList.length)];
+            addLog(`<span style="color:#00ff00;">【トレンド】</span> 世間は<strong>「${currentTrend}」</strong>を求めている！`);
+        }
+    }
+
+    function triggerEnding() {
+        
+        // 余韻は displayM1Result 側で制御しているので、ここは即座に実行
+        const curtain = document.getElementById('ending-curtain');
+        const staffRoll = document.getElementById('staff-roll');
+        const text = document.getElementById('ending-text');
+
+        // 白い幕を表示
+        curtain.style.display = 'flex'; 
+
+        // 2. スタッフロールの内容を流す
+        staffRoll.innerHTML = `
+            <p>コンビ名：${cName}</p>
+            <p>作ったネタの数：${state.totalNetaCount} 本</p>
+            <p>最高得点：${state.bestScore} 点</p>
+            <p>最終知名度：${state.fame} 人</p>
+            <p>獲得衣装：${state.outfit.name}</p>
+            <p style="margin-top:40px; font-weight:bold;">制作：あなた</p>
+        `;
+
+        // 3. 演出のタイムライン
+        // 1秒後にスタッフロールを表示
+        setTimeout(() => { 
+            staffRoll.style.opacity = '1'; 
+            staffRoll.style.transition = 'opacity 2s ease-in';
+        }, 1000);
+
+        // 4秒後に「完」を表示
+        setTimeout(() => { 
+            text.style.opacity = '1'; 
+        }, 4000);
+
+        // 8秒後に再スタート確認
+        setTimeout(() => {
+            if(confirm("伝説は幕を閉じました。もう一度、若手時代から始めますか？")) {
+                location.reload();
+            }
+        }, 8000);
+    }
+
+    updateUI();
+</script>
+</body>
+</html>

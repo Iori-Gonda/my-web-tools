@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Rhythm Game</title>
+    <style>
+        :root {
+            --pink: #ff71ee;
+            --purple: #c186ff;
+            --blue: #a7ccff;
+            --yellow: #f8ffae;
+            --mint: #89ffc4;
+
+            --lane-width: 80px;
+            --hit-zone-height: 20px;
+            --note-size: 60px;
+        }
+
+        body {
+            background: linear-gradient(180deg, var(--blue), var(--pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial Rounded MT Bold', sans-serif;
+            overflow: hidden;
+            position: relative;
+            color: white;
+            text-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+        }
+
+        #game-area {
+            position: relative;
+            width: calc(var(--lane-width) * 4 + 40px); /* 4レーン + 左右の余白 */
+            height: 600px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 5px solid var(--purple);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .lane {
+            position: absolute;
+            width: var(--lane-width);
+            height: 100%;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .lane:last-child { border-right: none; }
+
+        .hit-zone {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--hit-zone-height);
+            background: rgba(var(--mint), 0.7); /* ミント色 */
+            border-top: 3px solid var(--mint);
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .note {
+            position: absolute;
+            width: var(--note-size);
+            height: var(--note-size);
+            background: var(--yellow); /* ノートの色 */
+            border-radius: 10px;
+            box-shadow: 0 3px 0px var(--pink);
+            left: calc(50% - var(--note-size) / 2);
+            text-align: center;
+            line-height: var(--note-size);
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .active-hit {
+            background: var(--mint) !important;
+            box-shadow: 0 0 15px var(--mint);
+            transform: scale(1.1);
+            transition: all 0.1s ease-out;
+        }
+
+        #score-display {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2.5rem;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        #feedback-text {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--mint);
+            text-shadow: 3px 3px 0px var(--purple);
+            opacity: 0;
+            animation: fadeAndScale 0.8s ease-out forwards;
+            z-index: 11;
+        }
+        @keyframes fadeAndScale {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); }
+            100% { opacity: 0; transform: translate(-50%, -100%) scale(1.2); }
+        }
+
+        #instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.9);
+            padding: 2rem;
+            border-radius: 15px;
+            color: #333;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 20;
+        }
+        #start-button {
+            background-color: var(--pink);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="score-display">0</div>
+
+    <div id="game-area">
+        <div class="lane" style="left: 0;">
+            <div class="hit-zone">A</div>
+        </div>
+        <div class="lane" style="left: var(--lane-width);">
+            <div class="hit-zone">S</div>
+        </div>
+        <div class="lane" style="left: calc(var(--lane-width) * 2);">
+            <div class="hit-zone">D</div>
+        </div>
+        <div class="lane" style="left: calc(var(--lane-width) * 3);">
+            <div class="hit-zone">F</div>
+        </div>
+    </div>
+
+    <div id="instructions">
+        <h2>リズムゲーム</h2>
+        <p>A, S, D, F キーを使って、流れてくるノートをタイミング良く叩こう！</p>
+        <button id="start-button">ゲームスタート</button>
+    </div>
+
+    <script>
+        const LANE_KEYS = ['a', 's', 'd', 'f'];
+        const LANE_WIDTH = 80; // CSS変数と合わせる
+        const HIT_ZONE_Y = 560; // ノートが判定されるY座標
+        const NOTE_SPEED = 3; // ノートが落ちる速度
+        const NOTE_SPAWN_INTERVAL = 1000; // ノート生成間隔 (ms)
+        const GAME_DURATION = 60000; // ゲーム時間 (ms)
+
+        let score = 0;
+        let notes = []; // 現在落ちているノートの配列
+        let gameStarted = false;
+        let lastSpawnTime = 0;
+        let gameStartTime = 0;
+
+        const gameArea = document.getElementById('game-area');
+        const scoreDisplay = document.getElementById('score-display');
+        const instructions = document.getElementById('instructions');
+        const startButton = document.getElementById('start-button');
+        const hitZones = document.querySelectorAll('.hit-zone');
+
+        // 効果音生成 (Web Audio API)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(freq, duration = 0.05, type = 'sine') {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        // フィードバックテキスト表示 (GOOD/MISSなど)
+        function showFeedback(text, color = 'var(--mint)') {
+            const feedback = document.createElement('div');
+            feedback.id = 'feedback-text';
+            feedback.textContent = text;
+            feedback.style.color = color;
+            gameArea.appendChild(feedback);
+            setTimeout(() => feedback.remove(), 800);
+        }
+
+        // ノート生成
+        function spawnNote() {
+            const laneIndex = Math.floor(Math.random() * LANE_KEYS.length);
+            const key = LANE_KEYS[laneIndex];
+
+            const note = document.createElement('div');
+            note.classList.add('note');
+            note.textContent = key.toUpperCase();
+            note.dataset.key = key;
+            note.style.top = `-80px`; // 画面上部外からスタート
+            note.style.left = `${laneIndex * LANE_WIDTH + (LANE_WIDTH - 60) / 2}px`; // 中央に配置
+            gameArea.appendChild(note);
+
+            notes.push({
+                element: note,
+                key: key,
+                y: -80 // 初期Y座標
+            });
+        }
+
+        // ゲームループ (requestAnimationFrame)
+        function gameLoop(currentTime) {
+            if (!gameStarted) return;
+
+            // ノート生成
+            if (currentTime - lastSpawnTime > NOTE_SPAWN_INTERVAL) {
+                spawnNote();
+                lastSpawnTime = currentTime;
+            }
+
+            // ノートの移動と判定
+            for (let i = notes.length - 1; i >= 0; i--) {
+                const note = notes[i];
+                note.y += NOTE_SPEED;
+                note.element.style.top = `${note.y}px`;
+
+                // 画面外に出てしまったノートの処理 (MISS判定)
+                if (note.y > HIT_ZONE_Y + 50) { // 判定ラインより少し下
+                    notes.splice(i, 1);
+                    note.element.remove();
+                    showFeedback('MISS', 'var(--pink)');
+                    playSound(100); // ミス音
+                }
+            }
+
+            // ゲーム終了判定
+            if (currentTime - gameStartTime > GAME_DURATION) {
+                endGame();
+                return;
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // キー入力処理
+        document.addEventListener('keydown', (e) => {
+            if (!gameStarted) return;
+
+            const pressedKey = e.key.toLowerCase();
+            const laneIndex = LANE_KEYS.indexOf(pressedKey);
+
+            if (laneIndex !== -1) {
+                // ヒットゾーンを光らせる
+                hitZones[laneIndex].classList.add('active-hit');
+
+                // ノートの判定
+                let hit = false;
+                for (let i = notes.length - 1; i >= 0; i--) {
+                    const note = notes[i];
+                    if (note.key === pressedKey) {
+                        // ヒットゾーンの範囲内か？
+                        if (note.y > HIT_ZONE_Y - 40 && note.y < HIT_ZONE_Y + 40) { // 判定範囲を少し広げた
+                            score += 100;
+                            scoreDisplay.textContent = score;
+                            notes.splice(i, 1);
+                            note.element.remove();
+                            showFeedback('GOOD!', 'var(--mint)');
+                            playSound(600 + score % 200, 0.08); // ヒット音
+                            hit = true;
+                            break; // 複数ヒットを防ぐ
+                        }
+                    }
+                }
+                if (!hit) {
+                    // 何もヒットしなかったがキーを押した
+                    showFeedback('MISS', 'var(--pink)');
+                    playSound(100); // ミス音
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            const releasedKey = e.key.toLowerCase();
+            const laneIndex = LANE_KEYS.indexOf(releasedKey);
+            if (laneIndex !== -1) {
+                hitZones[laneIndex].classList.remove('active-hit');
+            }
+        });
+
+        // ゲーム開始
+        startButton.addEventListener('click', () => {
+            instructions.style.display = 'none';
+            gameStarted = true;
+            gameStartTime = performance.now(); // ゲーム開始時刻を記録
+            lastSpawnTime = gameStartTime;
+            requestAnimationFrame(gameLoop);
+        });
+
+        // ゲーム終了
+        function endGame() {
+            gameStarted = false;
+            // 全てのノートを削除
+            notes.forEach(note => note.element.remove());
+            notes = [];
+            // 結果表示
+            instructions.innerHTML = `<h2>ゲーム終了！</h2><p>最終スコア: ${score}</p><button id="restart-button" style="background-color:var(--mint); color:#333; border:none; padding:10px 20px; border-radius:20px; font-size:1.2rem; cursor:pointer;" onclick="location.reload()">もう一度遊ぶ</button>`;
+            instructions.style.display = 'flex';
+            instructions.style.flexDirection = 'column';
+            instructions.style.justifyContent = 'center';
+            instructions.style.alignItems = 'center';
+        }
+
+    </script>
+</body>
+</html>
