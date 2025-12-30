@@ -429,7 +429,7 @@
                 currentM1Stage = 5;
                 state.days = 1;
             } else {
-                addLog("惜しくも敗退。 …変わんねえな、人生。");
+                addLog("惜しくも敗退。");
                 // ★修正: そのままエンディング画面へ
                 setTimeout(() => triggerEnding("defeat"), 3000);
             }
@@ -476,7 +476,7 @@
         // ★修正: 表示するメッセージを分岐
         let mainMsg = (type === "victory")
             ? "今日、人生が変わった。"
-            : "「…もう1年、この生活を続けるのか。」";
+            : "「…変わんねえな、人生。」";
         let subMsg = (type === "victory")
             ? "ついに頂点へ。鳴り止まない拍手。"
             : `${M1_STAGES[currentM1Stage].name}敗退。人生を変えに来たはずだった。`;
