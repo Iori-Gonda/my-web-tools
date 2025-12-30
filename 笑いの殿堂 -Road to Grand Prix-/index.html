@@ -369,6 +369,7 @@
     }
 
     // 判定処理をまとめたヘルパー関数（エラー回避のため分離）
+    // --- 判定処理の修正：予選敗退でもエンドへ ---
     function displayM1Result(finalScore, stage) {
         addLog(`結果：<strong>${finalScore}点</strong>（通過ライン: ${stage.quota}点）`);
 
@@ -398,9 +399,10 @@
                         }, i * interval); 
                     }
                     
+                    // 優勝エンドへ
                     // 【修正】紙吹雪が終わるのが (15 * 200ms = 3秒後)
                     // そこから 2秒待機して白転させるため、紙吹雪開始から 5秒後に実行
-                    setTimeout(triggerEnding, 5000);
+                    setTimeout(() => triggerEnding("victory"), 5000);
 
                 }, 3000);
             }
@@ -408,25 +410,30 @@
             // 敗退時のズッコケ演出（ここに入れると「名前が出た瞬間」にこけます）
             document.getElementById('p1').classList.add('koketa');
             document.getElementById('p2').classList.add('koketa');
-            
+        
             if (stage.name === "準決勝") {
-                tryHaishaFukkatsu(finalScore);
+                tryHaishaFukkatsu(finalScore); // 準決勝だけはまだチャンスあり
             } else {
-                addLog(`<span class='suberi'>${stage.name}敗退...。コンビの夏が終わった。</span>`);
-            }
+                // 1回戦〜準々決勝、および決勝で負けた場合
+                addLog(`<span class='suberi'>${stage.name}敗退。 …変わんねえな、人生。</span>`);                // 3秒待ってから「負けエンド」へ
+                setTimeout(() => triggerEnding("defeat"), 3000);            }
         }
         updateUI();
     }
 
     function tryHaishaFukkatsu(score) {
         addLog("【敗者復活戦】視聴者投票の結果は…？");
-        if (score + Math.random() * 50 > 280) {
-            addLog("<span style='color:orange;'>奇跡の敗者復活！決勝へ！</span>");
-            currentM1Stage = 5;
-            state.days = 1;
-        } else {
-            addLog("惜しくも敗退。");
-        }
+        setTimeout(() => {
+            if (score + Math.random() * 50 > 280) {
+                addLog("<span style='color:orange;'>奇跡の敗者復活！決勝へ！</span>");
+                currentM1Stage = 5;
+                state.days = 1;
+            } else {
+                addLog("惜しくも敗退。 …変わんねえな、人生。");
+                // ★修正: そのままエンディング画面へ
+                setTimeout(() => triggerEnding("defeat"), 3000);
+            }
+        }, 2000);
     }
 
     function checkDissolution() {
@@ -448,23 +455,37 @@
         }
     }
 
-    function triggerEnding() {
-        
+    function triggerEnding(type) {
         // 余韻は displayM1Result 側で制御しているので、ここは即座に実行
         const curtain = document.getElementById('ending-curtain');
         const staffRoll = document.getElementById('staff-roll');
         const text = document.getElementById('ending-text');
 
         // 白い幕を表示
-        curtain.style.display = 'flex'; 
+        curtain.style.display = 'flex';
+
+        // ★修正: 敗退（defeat）なら背景を暗く、優勝なら白くする
+        if (type === "defeat") {
+            curtain.style.background = "#222";
+            staffRoll.style.color = "#aaa";
+        } else {
+            curtain.style.background = "white";
+            staffRoll.style.color = "#666";
+        }
+
+        // ★修正: 表示するメッセージを分岐
+        let mainMsg = (type === "victory") ? "今日、人生が変わった。" : "「……変わんねえな、人生。」";
+        let subMsg = (type === "victory") ? "ついに頂点へ。鳴り止まない拍手。" : `${M1_STAGES[currentM1Stage].name}敗退。人生を変えに来たはずだった。`;
 
         // 2. スタッフロールの内容を流す
         staffRoll.innerHTML = `
+            <h2 style="color:${type === 'victory' ? 'black' : '#eee'};">${type === 'victory' ? '✨ 栄冠 ✨' : '☁️ 終戦 ☁️'}</h2>
+            <p style="font-size: 1.2em; margin: 20px 0; font-weight: bold;">${mainMsg}</p>
+            <p style="font-style: italic; margin-bottom: 30px;">${subMsg}</p>
             <p>コンビ名：${cName}</p>
+            <p>最高成績：${M1_STAGES[currentM1Stage].name}</p>
             <p>作ったネタの数：${state.totalNetaCount} 本</p>
             <p>最高得点：${state.bestScore} 点</p>
-            <p>最終知名度：${state.fame} 人</p>
-            <p>獲得衣装：${state.outfit.name}</p>
             <p style="margin-top:40px; font-weight:bold;">制作：あなた</p>
         `;
 
@@ -482,9 +503,11 @@
 
         // 8秒後に再スタート確認
         setTimeout(() => {
-            if(confirm("伝説は幕を閉じました。もう一度、若手時代から始めますか？")) {
-                location.reload();
-            }
+            // ★修正: 終わりの問いかけもエモく変更
+            let confirmMsg = (type === "victory")
+                ? "伝説は幕を閉じました。もう一度、若手時代から始めますか？"
+                : "人生、変えに行きますか？";
+            if(confirm(confirmMsg)) { location.reload(); }
         }, 8000);
     }
 
