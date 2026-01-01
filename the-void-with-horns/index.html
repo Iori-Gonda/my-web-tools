@@ -1,371 +1,570 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="UTF-8">
-    <title>The Void with Horns - Pastel Dream</title>
-    <style>
-        :root {
-            /* パステル5色 */
-            --p-pink: #ffc1e3;
-            --p-purple: #e0b0ff;
-            --p-blue: #b2e2f2;
-            --p-green: #c1ffda;
-            --p-yellow: #fff9c1;
-        }
-
-        body {
-            margin: 0; height: 100vh; overflow: hidden;
-            font-family: 'Arial Rounded MT Bold', sans-serif;
-            /* 5色グラデーション */
-            background: linear-gradient(120deg, var(--p-pink), var(--p-purple), var(--p-blue), var(--p-green), var(--p-yellow));
-            background-size: 600% 600%; animation: gradientBG 15s ease infinite;
-            display: flex; justify-content: center; align-items: center;
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23ff69b4" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>') 12 12, auto;
-        }
-
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* 🌟 背景のポツポツ点滅キラキラ */
-        .twinkle {
-            position: fixed; background: white; border-radius: 50%;
-            pointer-events: none; opacity: 0;
-            animation: flash var(--duration) infinite alternate;
-        }
-        @keyframes flash {
-            0% { opacity: 0; transform: scale(0.3); }
-            100% { opacity: 0.8; transform: scale(1); }
-        }
-
-        /* ふわふわ雲 */
-        .cloud {
-            position: fixed; font-size: 60px; cursor: pointer;
-            user-select: none; transition: 0.5s; z-index: 5;
-        }
-
-        .main-card {
-            width: 350px; background: rgba(255, 255, 255, 0.7);
-            padding: 30px; border-radius: 50px; border: 8px solid white;
-            box-shadow: 0 10px 30px rgba(255, 193, 227, 0.5);
-            text-align: center; backdrop-filter: blur(10px); z-index: 10;
-        }
-
-        #unicorn-display { position: relative; }
-        #unicorn-emoji { font-size: 50px; transition: transform 0.2s; display: inline-block; }
-        #unicorn-blush {
-            position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-            font-size: 2rem; opacity: 0; transition: opacity 0.5s; color: #ff69b4;
-        }
-        #unicorn-bubble {
-            background: white; padding: 10px; border-radius: 20px;
-            font-size: 0.8rem; margin-bottom: 20px; color: #8b5cf6; border: 2px solid #ffc1e3;
-        }
-
-        .btn-group { display: flex; flex-direction: column; gap: 10px; }
-        .magic-btn {
-            padding: 12px; border-radius: 50px; border: none;
-            background: white; color: #ffc1e3; font-weight: bold;
-            cursor: pointer; transition: 0.3s; box-shadow: 0 4px 0px #ffc1e3;
-        }
-        .magic-btn:active { transform: translateY(3px); box-shadow: none; }
-
-        .running-unicorn {
-            position: fixed; font-size: 80px; z-index: 999;
-            pointer-events: none; animation: runAcross var(--speed) linear forwards;
-        }
-        @keyframes runAcross { from { right: -150px; } to { right: 110%; } }
-
-        #manual-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 193, 227, 0.4); display: none;
-            justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(5px);
-        }
-        .manual-content {
-            background: white; width: 85%; max-width: 400px; max-height: 80vh;
-            border-radius: 30px; padding: 25px; overflow-y: auto; text-align: left;
-        }
-        .manual-close {
-            display: block; width: 100%; margin-top: 20px; padding: 12px;
-            background: #ffc1e3; color: white; border: none; border-radius: 50px; cursor: pointer;
-        }
-
-        .particle { position: fixed; pointer-events: none; animation: fadeOut var(--duration) forwards; z-index: 99; }
-        @keyframes fadeOut {
-            0% { 
-                transform: translate(0, 0) rotate(0deg) scale(1); /* 🌟rotateを追加 */
-                opacity: 1; 
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta charset="UTF-8" />
+        <title>The Void with Horns - Pastel Dream</title>
+        <style>
+            :root {
+                /* パステル5色 */
+                --p-pink: #ffc1e3;
+                --p-purple: #e0b0ff;
+                --p-blue: #b2e2f2;
+                --p-green: #c1ffda;
+                --p-yellow: #fff9c1;
             }
-            100% { 
-                transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(0); /* 🌟rotateを追加 */
-                opacity: 0; 
+
+            body {
+                margin: 0;
+                height: 100vh;
+                overflow: hidden;
+                font-family: "Arial Rounded MT Bold", sans-serif;
+                /* 5色グラデーション */
+                background: linear-gradient(120deg, var(--p-pink), var(--p-purple), var(--p-blue), var(--p-green), var(--p-yellow));
+                background-size: 600% 600%;
+                animation: gradientBG 15s ease infinite;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23ff69b4" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>')
+                        12 12,
+                    auto;
             }
-        }
 
-        #fairy-dust-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; transition: 5s; }
-        .fairy-dust-active { background: rgba(255, 255, 255, 0.8) !important; }
-
-        #translation-bubble {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: white; padding: 10px 15px; border-radius: 20px;
-            font-size: 1.2rem; color: #8b5cf6; border: 2px solid #b2e2f2; opacity: 0; transition: 0.5s; z-index: 100;
-        }
-    </style>
-</head>
-<body onmousemove="handleMouseMove(event)" ondblclick="spawnMagicItem(event)">
-
-    <div class="main-card">
-        <div id="unicorn-display">
-            <span id="unicorn-emoji">🦄</span>
-            <span id="unicorn-blush">(*ﾉωﾉ)</span>
-        </div>
-        <div id="unicorn-bubble">「今日はいい日になりそうな予感...✨」</div>
-        <div class="btn-group">
-            <button class="magic-btn" onclick="spawnCloud()">ふわふわ雲を生成 ☁️</button>
-            <button class="magic-btn" onclick="rollSlot()">マジカルスロット 🎰</button>
-            <button class="magic-btn" style="background: #ff69b4; color: white;" onclick="createHeartBurst()">褒め言葉をもらう 💖</button>
-            <button class="magic-btn" style="background: #8b5cf6; color: white;" onclick="startUnicornStampede()">ユニコーンを走らせる 🦄💨</button>
-            <button class="magic-btn" onclick="changeLuckyColor()">今日のラッキーカラー 🎨</button>
-            <button class="magic-btn" style="background: #555; color: white;" onclick="toggleManual(true)">公式トリセツを読む 📖</button>
-        </div>
-        <p style="font-size: 0.6rem; margin-top: 20px; color: #aaa;">※このサイトには実用的な機能は一切ありません</p>
-    </div>
-
-    <div id="manual-overlay">
-        <div class="manual-content">
-            <h2>🦄 公式取扱説明書</h2>
-            <p><strong>1. 楽しみ方</strong><br>
-                ・観賞する: ユニコーンが通り過ぎるのをただ見守ります。<br>
-                ・なでなで: ユニコーンの近くでマウスを動かすと照れます。<br>
-                ・隠し機能: ダブルクリックするとお菓子が召喚されます。10秒放置すると...？</p><br>
-            <p><strong>2. 推奨される利用シーン</strong><br>
-                ・現実逃避に: 仕事や勉強で行き詰まった時、このサイトを開いて「あ、世の中にはこんなに無駄なものがあってもいいんだ」と心を落ち着かせてください。<br>
-                ・思考のデトックス: 情報過多な現代において、情報を一切与えてくれないこのサイトは、脳の休息に最適です。</p><br>
-            <p><strong>3. 禁止事項</strong><br>
-                ・実用性を求めること: 「役に立つ情報を載せよう」とか「SEO対策をしよう」などと考えた瞬間、このサイトの魔法は解けてしまいます。<br>
-                ・目的を持ってアクセスすること: 「なんとなく開く」のが正解です。</p><br>
-            <p><strong>4. トラブルシューティング</strong><br>
-                Q: ユニコーンが速すぎて見えません。<br>
-                A: それもまた人生です。一瞬の出会いを大切にしてください。<br>
-                Q: 何も起きないのですが、故障ですか？<br>
-                A: いいえ、正常です。それがこのサイトの「最強の機能」です。</p>
-
-            <button class="manual-close" onclick="toggleManual(false)">閉じて虚無に戻る</button>
-        </div>
-    </div>
-
-    <div id="translation-bubble">ぷるぷる</div>
-    <div id="fairy-dust-overlay"></div>
-
-<script>
-    let currentBaseColor = 0;
-    // キラキラ生成
-    function createTwinkle() {
-        const star = document.createElement('div');
-        star.className = 'twinkle';
-        const size = Math.random() * 5 + 2 + 'px';
-        star.style.width = size; star.style.height = size;
-        star.style.left = Math.random() * 100 + 'vw';
-        star.style.top = Math.random() * 100 + 'vh';
-        star.style.setProperty('--duration', (Math.random() * 2 + 1) + 's');
-        document.body.appendChild(star);
-        setTimeout(() => star.remove(), 4000);
-    }
-    setInterval(createTwinkle, 300);
-
-    const unicornEmoji = document.getElementById('unicorn-emoji');
-    const unicornBlush = document.getElementById('unicorn-blush');
-    const unicornBubble = document.getElementById('unicorn-bubble');
-    const fairyDustOverlay = document.getElementById('fairy-dust-overlay');
-    const translationBubble = document.getElementById('translation-bubble');
-    let idleTimer, isBlushing = false, petNadeCount = 0, lastMouseX = 0;
-
-    function toggleManual(show) { document.getElementById('manual-overlay').style.display = show ? 'flex' : 'none'; }
-
-    function startUnicornStampede() {
-        for(let i=0; i<5; i++) {
-            setTimeout(() => {
-                const u = document.createElement('div');
-                u.className = 'running-unicorn'; u.textContent = '🦄';
-                u.style.top = Math.random() * 80 + 'vh';
-                u.style.setProperty('--speed', (Math.random() * 2 + 2) + 's');
-                document.body.appendChild(u);
-                setTimeout(() => u.remove(), 5000);
-            }, i * 300);
-        }
-    }
-
-    function spawnCloud() {
-        const cloud = document.createElement('div');
-        cloud.className = 'cloud'; cloud.textContent = '☁️';
-        cloud.style.left = Math.random() * 80 + 'vw'; cloud.style.top = Math.random() * 80 + 'vh';
-        document.body.appendChild(cloud);
-        cloud.onclick = () => { cloud.style.opacity = "0"; setTimeout(() => cloud.remove(), 500); };
-    }
-
-    const messages = ["マシュマロの雲で寝たいな〜💭", "さっき虹の橋を渡ってきたよ🌈", "何もしない時間って、一番の魔法だよ🧙‍♀️", "きらきらの世界へようこそ！💖", "あなたのタイピング、リズムが良いね！✨", "星屑サイダー、飲む？🥤", "今のクリック、とってもキュート！💖", "ユニコーンは夢を食べるの...もちろんいい夢だけ！😴", "あなたといると、時間があっという間だね🕒", "実は、このサイトは私の秘密の庭なんだよ🤫", "虚無の底は意外とあったかいよ💭", "虹のコード、書き換えておいたよ🌈", "0101...ユニコーン...✨"];
-    setInterval(() => { unicornBubble.textContent = `「${messages[Math.floor(Math.random() * messages.length)]}」`; }, 5000);
-
-     // マジカルスロット
-    function rollSlot() {
-        const results = ["超大吉 🌟", "宇宙一ラッキー 🚀", "ゆめかわハッピー 🍭", "天使級の幸運 👼"];
-        const res = results[Math.floor(Math.random() * results.length)];
-        alert(`結果は... 【 ${res} 】 です！ おめでとう！`);
-    }
-
-    // ハートバースト（褒め言葉ボタン）
-        function createHeartBurst() {
-            for(let i=0; i<15; i++) {
-            createParticle(window.innerWidth / 2, window.innerHeight / 2, '💖', 10, 1.5, 1);
-            }
-            alert('ただただ、あなたが可愛いです');
-        }
-
-    // マウスについてくる彗星
-    function handleMouseMove(e) {
-        // ✨ キラキラを生成（サイズ 1.0、持続時間 0.8秒）
-        createTailParticle(e.clientX, e.clientY, (Math.random() < 0.5 ? '✨' : '💫'), 1.0, 0.8);
-    
-        resetIdleTimer();
-        const rect = unicornEmoji.getBoundingClientRect();
-        if (e.clientX > rect.left - 50 && e.clientX < rect.right + 50 && e.clientY > rect.top - 50 && e.clientY < rect.bottom + 50) {
-            if (Math.abs(e.clientX - lastMouseX) > 15 && !isBlushing) {
-                petNadeCount++;
-                if (petNadeCount > 5) {
-                    unicornBlush.style.opacity = 1; unicornEmoji.style.transform = "scale(1.2)";
-                    isBlushing = true;
-                    setTimeout(() => {
-                        unicornBlush.style.opacity = 0; unicornEmoji.style.transform = "scale(1)";
-                        isBlushing = false; petNadeCount = 0;
-                    }, 2000);
+            @keyframes gradientBG {
+                0% {
+                    background-position: 0% 50%;
+                }
+                50% {
+                    background-position: 100% 50%;
+                }
+                100% {
+                    background-position: 0% 50%;
                 }
             }
-        }
-        lastMouseX = e.clientX;
-    }
 
-    // 彗星のしっぽ専用（散らずに、スッとその場に残って消える）
-    function createTailParticle(x, y, emoji, size, duration) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.textContent = emoji;
-        p.style.left = x + 'px';
-        p.style.top = y + 'px';
+            /* 🌟 背景のポツポツ点滅キラキラ */
+            .twinkle {
+                position: fixed;
+                background: white;
+                border-radius: 50%;
+                pointer-events: none;
+                opacity: 0;
+                animation: flash var(--duration) infinite alternate;
+            }
 
-        // 🌟 散らばり制限：横(X)はほぼ動かさず、縦(Y)に少しだけ重力で落ちる
-        const moveX = (Math.random() - 0.5) * 10; // 左右にわずか5pxだけ
-        const moveY = Math.random() * 30 + 10;    // 下に10〜40pxだけ落ちる
+            @keyframes flash {
+                0% {
+                    opacity: 0;
+                    transform: scale(0.3);
+                }
+                100% {
+                    opacity: 0.8;
+                    transform: scale(1);
+                }
+            }
 
-        p.style.setProperty('--x', moveX + 'px');
-        p.style.setProperty('--y', moveY + 'px');
-        p.style.setProperty('--r', '0deg'); // しっぽは回転させない方が綺麗です
-    
-        const finalSize = (Math.random() * 5 + 10) * size; 
-        p.style.fontSize = finalSize + 'px';
-        p.style.setProperty('--duration', duration + 's');
+            /* ふわふわ雲 */
+            .cloud {
+                position: fixed;
+                font-size: 60px;
+                cursor: pointer;
+                user-select: none;
+                transition: 0.5s;
+                z-index: 5;
+            }
 
-        document.body.appendChild(p);
-        setTimeout(() => p.remove(), duration * 1000);
-    }
+            .main-card {
+                width: 350px;
+                background: rgba(255, 255, 255, 0.7);
+                padding: 30px;
+                border-radius: 50px;
+                border: 8px solid white;
+                box-shadow: 0 10px 30px rgba(255, 193, 227, 0.5);
+                text-align: center;
+                backdrop-filter: blur(10px);
+                z-index: 10;
+            }
 
-    // 8. 画面おそうじ（放置でキラキラ埋め尽くし）
-    function startIdleTimer() {
-        idleTimer = setTimeout(() => {
-            fairyDustOverlay.classList.add('fairy-dust-active');
-            createParticle(Math.random()*window.innerWidth, Math.random()*window.innerHeight, '🌟', 50, 2, 5); // キラキラを大量生成
-            createParticle(Math.random()*window.innerWidth, Math.random()*window.innerHeight, '💖', 30, 1.5, 4); // ハートも
-            createParticle(Math.random()*window.innerWidth, Math.random()*window.innerHeight, '🌈', 10, 3, 6); // 虹も
-        }, 10000); // 10秒放置で発動
-    }
+            #unicorn-display {
+                position: relative;
+            }
 
-    function resetIdleTimer() {
-        clearTimeout(idleTimer);
-        fairyDustOverlay.classList.remove('fairy-dust-active');
-        startIdleTimer();
-    }
+            #unicorn-emoji {
+                font-size: 50px;
+                transition: transform 0.2s;
+                display: inline-block;
+            }
 
-    startIdleTimer(); // ページ読み込み時にタイマー開始
+            #unicorn-blush {
+                position: absolute;
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 2rem;
+                opacity: 0;
+                transition: opacity 0.5s;
+                color: #ff69b4;
+            }
 
-    // 無意味な魔法の杖モード（ダブルクリックで召喚）
-    function spawnMagicItem(e) {
-        const items = ['🍭', '🎀', '💎', '🍬', '✨', '🌸'];
-        // 1. ループの外で「今回のえもじ」を1種類だけ決める
-        const selectedItem = items[Math.floor(Math.random() * items.length)];
-    
-        // 2. 決まった1種類のえもじを、複数個（12個くらい）飛ばす
-        for (let i = 0; i < 12; i++) {
-        // 全て同じ selectedItem を使って、バラバラの方向に飛ばす
-        createParticle(e.clientX, e.clientY, selectedItem, 1, 1, 1.5);
-        }
-    }
+            #unicorn-bubble {
+                background: white;
+                padding: 10px;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                margin-bottom: 20px;
+                color: #8b5cf6;
+                border: 2px solid #ffc1e3;
+            }
 
-    // パーティクル生成の基礎関数（アニメーションを個別に適用）
-    function createParticle(x, y, emoji, count, size, duration) {
-        for (let i = 0; i < count; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            p.textContent = emoji;
-        
-            // 出現位置
-            p.style.left = x + 'px';
-            p.style.top = y + 'px';
+            .btn-group {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
 
-            // 🚀 重要：ここで「1個ずつバラバラの飛び先」を計算する
-            const moveX = (Math.random() - 0.5) * 400; // -250px ～ 250px の範囲
-            const moveY = (Math.random() - 0.5) * 400; // -250px ～ 250px の範囲
-            const rotate = (Math.random() - 0.5) * 540; // くるくる回す
+            .magic-btn {
+                padding: 12px;
+                border-radius: 50px;
+                border: none;
+                background: white;
+                color: #ffc1e3;
+                font-weight: bold;
+                cursor: pointer;
+                transition: 0.3s;
+                box-shadow: 0 4px 0px #ffc1e3;
+            }
 
-            // CSS変数にバラバラの値をセット
-            p.style.setProperty('--x', moveX + 'px');
-            p.style.setProperty('--y', moveY + 'px');
-            p.style.setProperty('--r', rotate + 'deg');
-        
-        // サイズと時間をセット
-        const finalSize = (Math.random() * 20 + 20) * size;
-        p.style.fontSize = finalSize + 'px';
-        p.style.setProperty('--duration', duration + 's');
+            .magic-btn:active {
+                transform: translateY(3px);
+                box-shadow: none;
+            }
 
-        document.body.appendChild(p);
-        
-        // アニメーションが終わったら消す
-        setTimeout(() => p.remove(), duration * 1000);
-    }
-}
+            .running-unicorn {
+                position: fixed;
+                font-size: 80px;
+                z-index: 999;
+                pointer-events: none;
+                animation: runAcross var(--speed) linear forwards;
+            }
 
-    // おしゃべり翻訳機
-    const kawaiiWords = ["ふわふわ", "きら〜ん", "ぷるぷる", "ぴょんぴょん", "るんるん", "もふもふ", "きゅん💖"];
-    document.addEventListener('keydown', (e) => {
+            @keyframes runAcross {
+                from {
+                    right: -150px;
+                }
+                to {
+                    right: 110%;
+                }
+            }
 
-        if (!e.repeat) { // キー長押しで連続しないように
-            const word = kawaiiWords[Math.floor(Math.random() * kawaiiWords.length)];
-            translationBubble.textContent = word;
-            translationBubble.style.opacity = 1;
-            translationBubble.style.transform = `translateX(-50%) translateY(${Math.random() * 10 - 5}px)`; // 少し揺らす
-            setTimeout(() => {
-                translationBubble.style.opacity = 0;
-                translationBubble.style.transform = 'translateX(-50%) translateY(0)';
-            }, 1500);
-        }
-    });
+            #manual-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(255, 193, 227, 0.4);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 2000;
+                backdrop-filter: blur(5px);
+            }
 
-    // 今日のラッキーカラー強制変更
-    function changeLuckyColor() {
-        const root = document.documentElement;
-        const colors = [
-            { '--p-pink': '#ffc1e3', '--p-purple': '#e0b0ff', '--p-blue': '#b2e2f2', '--p-green': '#c1ffda', '--p-yellow': '#fff9c1' }, // デフォルト
-            { '--p-pink': '#ffddaa', '--p-purple': '#ffccff', '--p-blue': '#aaddff', '--p-green': '#fff0b3', '--p-yellow': '#ffd1d1' }, // サンセット
-            { '--p-pink': '#aaffaa', '--p-purple': '#ccffcc', '--p-blue': '#eeeeff', '--p-green': '#d1ffd1', '--p-yellow': '#f0fff0' }  // フォレスト
-        ];
-        currentBaseColor = (currentBaseColor + 1) % colors.length;
-        const newColors = colors[currentBaseColor];
-        for (const key in newColors) {
-            root.style.setProperty(key, newColors[key]);
-        }
-        createParticle(window.innerWidth / 2, 50, '🌈', 10, 2, 2);
-    }
-</script>
-</body>
+            .manual-content {
+                background: white;
+                width: 85%;
+                max-width: 400px;
+                max-height: 80vh;
+                border-radius: 30px;
+                padding: 25px;
+                overflow-y: auto;
+                text-align: left;
+            }
+
+            .manual-close {
+                display: block;
+                width: 100%;
+                margin-top: 20px;
+                padding: 12px;
+                background: #ffc1e3;
+                color: white;
+                border: none;
+                border-radius: 50px;
+                cursor: pointer;
+            }
+
+            .particle {
+                position: fixed;
+                pointer-events: none;
+                animation: fadeOut var(--duration) forwards;
+                z-index: 99;
+            }
+
+            @keyframes fadeOut {
+                0% {
+                    transform: translate(0, 0) rotate(0deg) scale(1); /* 🌟rotateを追加 */
+                    opacity: 1;
+                }
+                100% {
+                    transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(0); /* 🌟rotateを追加 */
+                    opacity: 0;
+                }
+            }
+
+            #fairy-dust-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 1000;
+                transition: 5s;
+            }
+
+            .fairy-dust-active {
+                background: rgba(255, 255, 255, 0.8) !important;
+            }
+
+            #translation-bubble {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: white;
+                padding: 10px 15px;
+                border-radius: 20px;
+                font-size: 1.2rem;
+                color: #8b5cf6;
+                border: 2px solid #b2e2f2;
+                opacity: 0;
+                transition: 0.5s;
+                z-index: 100;
+            }
+        </style>
+    </head>
+    <body onmousemove="handleMouseMove(event)" ondblclick="spawnMagicItem(event)">
+        <div class="main-card">
+            <div id="unicorn-display">
+                <span id="unicorn-emoji">🦄</span>
+                <span id="unicorn-blush">(*ﾉωﾉ)</span>
+            </div>
+            <div id="unicorn-bubble">「今日はいい日になりそうな予感...✨」</div>
+            <div class="btn-group">
+                <button class="magic-btn" onclick="spawnCloud()">ふわふわ雲を生成 ☁️</button>
+                <button class="magic-btn" onclick="rollSlot()">マジカルスロット 🎰</button>
+                <button class="magic-btn" style="background: #ff69b4; color: white" onclick="createHeartBurst()">
+                    褒め言葉をもらう 💖
+                </button>
+                <button class="magic-btn" style="background: #8b5cf6; color: white" onclick="startUnicornStampede()">
+                    ユニコーンを走らせる 🦄💨
+                </button>
+                <button class="magic-btn" onclick="changeLuckyColor()">今日のラッキーカラー 🎨</button>
+                <button class="magic-btn" style="background: #555; color: white" onclick="toggleManual(true)">公式トリセツを読む 📖</button>
+            </div>
+            <p style="font-size: 0.6rem; margin-top: 20px; color: #aaa">※このサイトには実用的な機能は一切ありません</p>
+        </div>
+
+        <div id="manual-overlay">
+            <div class="manual-content">
+                <h2>🦄 公式取扱説明書</h2>
+                <p>
+                    <strong>1. 楽しみ方</strong><br />
+                    ・観賞する: ユニコーンが通り過ぎるのをただ見守ります。<br />
+                    ・なでなで: ユニコーンの近くでマウスを動かすと照れます。<br />
+                    ・隠し機能: ダブルクリックするとお菓子が召喚されます。10秒放置すると...？
+                </p>
+                <br />
+                <p>
+                    <strong>2. 推奨される利用シーン</strong><br />
+                    ・現実逃避に:
+                    仕事や勉強で行き詰まった時、このサイトを開いて「あ、世の中にはこんなに無駄なものがあってもいいんだ」と心を落ち着かせてください。<br />
+                    ・思考のデトックス: 情報過多な現代において、情報を一切与えてくれないこのサイトは、脳の休息に最適です。
+                </p>
+                <br />
+                <p>
+                    <strong>3. 禁止事項</strong><br />
+                    ・実用性を求めること:
+                    「役に立つ情報を載せよう」とか「SEO対策をしよう」などと考えた瞬間、このサイトの魔法は解けてしまいます。<br />
+                    ・目的を持ってアクセスすること: 「なんとなく開く」のが正解です。
+                </p>
+                <br />
+                <p>
+                    <strong>4. トラブルシューティング</strong><br />
+                    Q: ユニコーンが速すぎて見えません。<br />
+                    A: それもまた人生です。一瞬の出会いを大切にしてください。<br />
+                    Q: 何も起きないのですが、故障ですか？<br />
+                    A: いいえ、正常です。それがこのサイトの「最強の機能」です。
+                </p>
+
+                <button class="manual-close" onclick="toggleManual(false)">閉じて虚無に戻る</button>
+            </div>
+        </div>
+
+        <div id="translation-bubble">ぷるぷる</div>
+        <div id="fairy-dust-overlay"></div>
+
+        <script>
+            let currentBaseColor = 0;
+            // キラキラ生成
+            function createTwinkle() {
+                const star = document.createElement("div");
+                star.className = "twinkle";
+                const size = Math.random() * 5 + 2 + "px";
+                star.style.width = size;
+                star.style.height = size;
+                star.style.left = Math.random() * 100 + "vw";
+                star.style.top = Math.random() * 100 + "vh";
+                star.style.setProperty("--duration", Math.random() * 2 + 1 + "s");
+                document.body.appendChild(star);
+                setTimeout(() => star.remove(), 4000);
+            }
+            setInterval(createTwinkle, 300);
+
+            const unicornEmoji = document.getElementById("unicorn-emoji");
+            const unicornBlush = document.getElementById("unicorn-blush");
+            const unicornBubble = document.getElementById("unicorn-bubble");
+            const fairyDustOverlay = document.getElementById("fairy-dust-overlay");
+            const translationBubble = document.getElementById("translation-bubble");
+            let idleTimer,
+                isBlushing = false,
+                petNadeCount = 0,
+                lastMouseX = 0;
+
+            function toggleManual(show) {
+                document.getElementById("manual-overlay").style.display = show ? "flex" : "none";
+            }
+
+            function startUnicornStampede() {
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const u = document.createElement("div");
+                        u.className = "running-unicorn";
+                        u.textContent = "🦄";
+                        u.style.top = Math.random() * 80 + "vh";
+                        u.style.setProperty("--speed", Math.random() * 2 + 2 + "s");
+                        document.body.appendChild(u);
+                        setTimeout(() => u.remove(), 5000);
+                    }, i * 300);
+                }
+            }
+
+            function spawnCloud() {
+                const cloud = document.createElement("div");
+                cloud.className = "cloud";
+                cloud.textContent = "☁️";
+                cloud.style.left = Math.random() * 80 + "vw";
+                cloud.style.top = Math.random() * 80 + "vh";
+                document.body.appendChild(cloud);
+                cloud.onclick = () => {
+                    cloud.style.opacity = "0";
+                    setTimeout(() => cloud.remove(), 500);
+                };
+            }
+
+            const messages = [
+                "マシュマロの雲で寝たいな〜💭",
+                "さっき虹の橋を渡ってきたよ🌈",
+                "何もしない時間って、一番の魔法だよ🧙‍♀️",
+                "きらきらの世界へようこそ！💖",
+                "あなたのタイピング、リズムが良いね！✨",
+                "星屑サイダー、飲む？🥤",
+                "今のクリック、とってもキュート！💖",
+                "ユニコーンは夢を食べるの...もちろんいい夢だけ！😴",
+                "あなたといると、時間があっという間だね🕒",
+                "実は、このサイトは私の秘密の庭なんだよ🤫",
+                "虚無の底は意外とあったかいよ💭",
+                "虹のコード、書き換えておいたよ🌈",
+                "0101...ユニコーン...✨",
+            ];
+            setInterval(() => {
+                unicornBubble.textContent = `「${messages[Math.floor(Math.random() * messages.length)]}」`;
+            }, 5000);
+
+            // マジカルスロット
+            function rollSlot() {
+                const results = ["超大吉 🌟", "宇宙一ラッキー 🚀", "ゆめかわハッピー 🍭", "天使級の幸運 👼"];
+                const res = results[Math.floor(Math.random() * results.length)];
+                alert(`結果は... 【 ${res} 】 です！ おめでとう！`);
+            }
+
+            // ハートバースト（褒め言葉ボタン）
+            function createHeartBurst() {
+                for (let i = 0; i < 15; i++) {
+                    createParticle(window.innerWidth / 2, window.innerHeight / 2, "💖", 10, 1.5, 1);
+                }
+                alert("ただただ、あなたが可愛いです");
+            }
+
+            // マウスについてくる彗星
+            function handleMouseMove(e) {
+                // ✨ キラキラを生成（サイズ 1.0、持続時間 0.8秒）
+                createTailParticle(e.clientX, e.clientY, Math.random() < 0.5 ? "✨" : "💫", 1.0, 0.8);
+
+                resetIdleTimer();
+                const rect = unicornEmoji.getBoundingClientRect();
+                if (
+                    e.clientX > rect.left - 50 &&
+                    e.clientX < rect.right + 50 &&
+                    e.clientY > rect.top - 50 &&
+                    e.clientY < rect.bottom + 50
+                ) {
+                    if (Math.abs(e.clientX - lastMouseX) > 15 && !isBlushing) {
+                        petNadeCount++;
+                        if (petNadeCount > 5) {
+                            unicornBlush.style.opacity = 1;
+                            unicornEmoji.style.transform = "scale(1.2)";
+                            isBlushing = true;
+                            setTimeout(() => {
+                                unicornBlush.style.opacity = 0;
+                                unicornEmoji.style.transform = "scale(1)";
+                                isBlushing = false;
+                                petNadeCount = 0;
+                            }, 2000);
+                        }
+                    }
+                }
+                lastMouseX = e.clientX;
+            }
+
+            // 彗星のしっぽ専用（散らずに、スッとその場に残って消える）
+            function createTailParticle(x, y, emoji, size, duration) {
+                const p = document.createElement("div");
+                p.className = "particle";
+                p.textContent = emoji;
+                p.style.left = x + "px";
+                p.style.top = y + "px";
+
+                // 🌟 散らばり制限：横(X)はほぼ動かさず、縦(Y)に少しだけ重力で落ちる
+                const moveX = (Math.random() - 0.5) * 10; // 左右にわずか5pxだけ
+                const moveY = Math.random() * 30 + 10; // 下に10〜40pxだけ落ちる
+
+                p.style.setProperty("--x", moveX + "px");
+                p.style.setProperty("--y", moveY + "px");
+                p.style.setProperty("--r", "0deg"); // しっぽは回転させない方が綺麗です
+
+                const finalSize = (Math.random() * 5 + 10) * size;
+                p.style.fontSize = finalSize + "px";
+                p.style.setProperty("--duration", duration + "s");
+
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), duration * 1000);
+            }
+
+            // 8. 画面おそうじ（放置でキラキラ埋め尽くし）
+            function startIdleTimer() {
+                idleTimer = setTimeout(() => {
+                    fairyDustOverlay.classList.add("fairy-dust-active");
+                    createParticle(Math.random() * window.innerWidth, Math.random() * window.innerHeight, "🌟", 50, 2, 5); // キラキラを大量生成
+                    createParticle(Math.random() * window.innerWidth, Math.random() * window.innerHeight, "💖", 30, 1.5, 4); // ハートも
+                    createParticle(Math.random() * window.innerWidth, Math.random() * window.innerHeight, "🌈", 10, 3, 6); // 虹も
+                }, 10000); // 10秒放置で発動
+            }
+
+            function resetIdleTimer() {
+                clearTimeout(idleTimer);
+                fairyDustOverlay.classList.remove("fairy-dust-active");
+                startIdleTimer();
+            }
+
+            startIdleTimer(); // ページ読み込み時にタイマー開始
+
+            // 無意味な魔法の杖モード（ダブルクリックで召喚）
+            function spawnMagicItem(e) {
+                const items = ["🍭", "🎀", "💎", "🍬", "✨", "🌸"];
+                // 1. ループの外で「今回のえもじ」を1種類だけ決める
+                const selectedItem = items[Math.floor(Math.random() * items.length)];
+
+                // 2. 決まった1種類のえもじを、複数個（12個くらい）飛ばす
+                for (let i = 0; i < 12; i++) {
+                    // 全て同じ selectedItem を使って、バラバラの方向に飛ばす
+                    createParticle(e.clientX, e.clientY, selectedItem, 1, 1, 1.5);
+                }
+            }
+
+            // パーティクル生成の基礎関数（アニメーションを個別に適用）
+            function createParticle(x, y, emoji, count, size, duration) {
+                for (let i = 0; i < count; i++) {
+                    const p = document.createElement("div");
+                    p.className = "particle";
+                    p.textContent = emoji;
+
+                    // 出現位置
+                    p.style.left = x + "px";
+                    p.style.top = y + "px";
+
+                    // 🚀 重要：ここで「1個ずつバラバラの飛び先」を計算する
+                    const moveX = (Math.random() - 0.5) * 400; // -250px ～ 250px の範囲
+                    const moveY = (Math.random() - 0.5) * 400; // -250px ～ 250px の範囲
+                    const rotate = (Math.random() - 0.5) * 540; // くるくる回す
+
+                    // CSS変数にバラバラの値をセット
+                    p.style.setProperty("--x", moveX + "px");
+                    p.style.setProperty("--y", moveY + "px");
+                    p.style.setProperty("--r", rotate + "deg");
+
+                    // サイズと時間をセット
+                    const finalSize = (Math.random() * 20 + 20) * size;
+                    p.style.fontSize = finalSize + "px";
+                    p.style.setProperty("--duration", duration + "s");
+
+                    document.body.appendChild(p);
+
+                    // アニメーションが終わったら消す
+                    setTimeout(() => p.remove(), duration * 1000);
+                }
+            }
+
+            // おしゃべり翻訳機
+            const kawaiiWords = ["ふわふわ", "きら〜ん", "ぷるぷる", "ぴょんぴょん", "るんるん", "もふもふ", "きゅん💖"];
+            document.addEventListener("keydown", (e) => {
+                if (!e.repeat) {
+                    // キー長押しで連続しないように
+                    const word = kawaiiWords[Math.floor(Math.random() * kawaiiWords.length)];
+                    translationBubble.textContent = word;
+                    translationBubble.style.opacity = 1;
+                    translationBubble.style.transform = `translateX(-50%) translateY(${Math.random() * 10 - 5}px)`; // 少し揺らす
+                    setTimeout(() => {
+                        translationBubble.style.opacity = 0;
+                        translationBubble.style.transform = "translateX(-50%) translateY(0)";
+                    }, 1500);
+                }
+            });
+
+            // 今日のラッキーカラー強制変更
+            function changeLuckyColor() {
+                const root = document.documentElement;
+                const colors = [
+                    {
+                        "--p-pink": "#ffc1e3",
+                        "--p-purple": "#e0b0ff",
+                        "--p-blue": "#b2e2f2",
+                        "--p-green": "#c1ffda",
+                        "--p-yellow": "#fff9c1",
+                    }, // デフォルト
+                    {
+                        "--p-pink": "#ffddaa",
+                        "--p-purple": "#ffccff",
+                        "--p-blue": "#aaddff",
+                        "--p-green": "#fff0b3",
+                        "--p-yellow": "#ffd1d1",
+                    }, // サンセット
+                    {
+                        "--p-pink": "#aaffaa",
+                        "--p-purple": "#ccffcc",
+                        "--p-blue": "#eeeeff",
+                        "--p-green": "#d1ffd1",
+                        "--p-yellow": "#f0fff0",
+                    }, // フォレスト
+                ];
+                currentBaseColor = (currentBaseColor + 1) % colors.length;
+                const newColors = colors[currentBaseColor];
+                for (const key in newColors) {
+                    root.style.setProperty(key, newColors[key]);
+                }
+                createParticle(window.innerWidth / 2, 50, "🌈", 10, 2, 2);
+            }
+        </script>
+    </body>
 </html>

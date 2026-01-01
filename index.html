@@ -1,214 +1,227 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Gongcha's Web Tools Space</title>
-    <style>
-        :root {
-            --pink: #ff71ee;
-            --purple: #c186ff;
-            --blue: #a7ccff;
-            --yellow: #f8ffae;
-            --mint: #89ffc4;
-            --github-dark: #24292e;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Gongcha's Web Tools Space</title>
+        <style>
+            :root {
+                --pink: #ff71ee;
+                --purple: #c186ff;
+                --blue: #a7ccff;
+                --yellow: #f8ffae;
+                --mint: #89ffc4;
+                --github-dark: #24292e;
+            }
 
-        body {
-            background-color: #fafafa;
-            margin: 0;
-            font-family: 'Arial Rounded MT Bold', sans-serif;
-            color: #444;
-            line-height: 1.6;
-        }
+            body {
+                background-color: #fafafa;
+                margin: 0;
+                font-family: "Arial Rounded MT Bold", sans-serif;
+                color: #444;
+                line-height: 1.6;
+            }
 
-        header {
-            background: linear-gradient(135deg, var(--pink), var(--purple));
-            color: white;
-            padding: 4rem 1rem;
-            text-align: center;
-            clip-path: ellipse(120% 80% at 50% 20%);
-        }
+            header {
+                background: linear-gradient(135deg, var(--pink), var(--purple));
+                color: white;
+                padding: 4rem 1rem;
+                text-align: center;
+                clip-path: ellipse(120% 80% at 50% 20%);
+            }
 
-        header h1 { 
-            font-size: clamp(2rem, 8vw, 3rem);
-            margin: 0; 
-            text-shadow: 3px 3px 0px var(--blue); 
-        }
+            header h1 {
+                font-size: clamp(2rem, 8vw, 3rem);
+                margin: 0;
+                text-shadow: 3px 3px 0px var(--blue);
+            }
 
-        .container {
-            max-width: 1000px;
-            margin: -50px auto 50px;
-            padding: 0 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
+            .container {
+                max-width: 1000px;
+                margin: -50px auto 50px;
+                padding: 0 20px;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+            }
 
-        .card {
-            background: white;
-            border-radius: 25px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            transition: 0.3s;
-            border-bottom: 8px solid var(--blue);
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .card:hover { transform: translateY(-5px); background-color: #fff9ff; }
-        .card span { font-size: 3rem; margin-bottom: 10px; }
-        .card h2 { margin: 10px 0; font-size: 1.2rem; }
-        .card p { font-size: 0.9rem; margin: 0; color: #777; }
+            .card {
+                background: white;
+                border-radius: 25px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+                transition: 0.3s;
+                border-bottom: 8px solid var(--blue);
+                text-decoration: none;
+                color: inherit;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .card:hover {
+                transform: translateY(-5px);
+                background-color: #fff9ff;
+            }
 
-        .insta-section {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 20px;
-            background: white;
-            border: 6px double var(--pink);
-            border-radius: 30px;
-            text-align: center;
-            position: relative;
-        }
+            .card span {
+                font-size: 3rem;
+                margin-bottom: 10px;
+            }
 
-        .insta-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px var(--blue);
-            min-height: 400px;
-        }
+            .card h2 {
+                margin: 10px 0;
+                font-size: 1.2rem;
+            }
 
-        .insta-link-btn {
-            display: inline-block;
-            margin-top: 20px;
-            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-            color: white;
-            padding: 10px 25px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
+            .card p {
+                font-size: 0.9rem;
+                margin: 0;
+                color: #777;
+            }
 
-        .profile {
-            max-width: 700px;
-            margin: 50px auto 20px;
-            text-align: center;
-            padding: 30px;
-            background: var(--mint);
-            border-radius: 50px;
-        }
+            .insta-section {
+                max-width: 900px;
+                margin: 40px auto;
+                padding: 20px;
+                background: white;
+                border: 6px double var(--pink);
+                border-radius: 30px;
+                text-align: center;
+                position: relative;
+            }
 
-        .github-footer {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 50px;
-        }
-        .github-btn {
-            background-color: var(--github-dark);
-            color: white;
-            padding: 12px 25px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-    </style>
-</head>
-<body>
+            .insta-container {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+                border-radius: 20px;
+                overflow: hidden;
+                box-shadow: 0 5px 15px var(--blue);
+                min-height: 400px;
+            }
 
-<header>
-    <h1>My Creative & Fan Space</h1>
-    <p>Development & NCT WISH World</p>
-</header>
+            .insta-link-btn {
+                display: inline-block;
+                margin-top: 20px;
+                background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+                color: white;
+                padding: 10px 25px;
+                border-radius: 50px;
+                text-decoration: none;
+                font-weight: bold;
+                font-size: 0.9rem;
+            }
 
-<div class="container">
+            .profile {
+                max-width: 700px;
+                margin: 50px auto 20px;
+                text-align: center;
+                padding: 30px;
+                background: var(--mint);
+                border-radius: 50px;
+            }
 
-    <a href="the-void-with-horns/" class="card">
-        <span>🦄</span>
-        <h2>The Void with Horns</h2>
-        <p>角を持つ虚無...あのユニコーンの無駄サイトです。</p>
-    </a>
+            .github-footer {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 50px;
+            }
+            .github-btn {
+                background-color: var(--github-dark);
+                color: white;
+                padding: 12px 25px;
+                border-radius: 50px;
+                text-decoration: none;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>My Creative & Fan Space</h1>
+            <p>Development & NCT WISH World</p>
+        </header>
 
-    <a href="timer/" class="card">
-        <span>⏱️</span>
-        <h2>Study Timer</h2>
-        <p>集中して勉強や推し活の準備！</p>
-    </a>
+        <div class="container">
+            <a href="the-void-with-horns/" class="card">
+                <span>🦄</span>
+                <h2>The Void with Horns</h2>
+                <p>角を持つ虚無...あのユニコーンの無駄サイトです。</p>
+            </a>
 
-    <a href="todo/" class="card">
-        <span>✅</span>
-        <h2>Magic ToDo</h2>
-        <p>ライブやイベントの予定を管理！</p>
-    </a>
+            <a href="timer/" class="card">
+                <span>⏱️</span>
+                <h2>Study Timer</h2>
+                <p>集中して勉強や推し活の準備！</p>
+            </a>
 
-    <a href="笑いの殿堂 -Road to Grand Prix-/" class="card">
-        <span>🏆</span>
-        <h2>笑いの殿堂</h2>
-        <p>M-1王者を目指せ！爆笑お笑いシミュレーター</p>
-    </a>
+            <a href="todo/" class="card">
+                <span>✅</span>
+                <h2>Magic ToDo</h2>
+                <p>ライブやイベントの予定を管理！</p>
+            </a>
 
-    <a href="cafemap/" class="card">
-        <span>☕</span>
-        <h2>Cafe Map</h2>
-        <p>お気に入りのカフェをチェックしよう！</p>
-    </a>
+            <a href="笑いの殿堂 -Road to Grand Prix-/" class="card">
+                <span>🏆</span>
+                <h2>笑いの殿堂</h2>
+                <p>M-1王者を目指せ！爆笑お笑いシミュレーター</p>
+            </a>
 
-    <a href="typing-game/" class="card">
-        <span>⌨️</span>
-        <h2>Typing Game</h2>
-        <p>タイピング練習してファンレターを書こう！</p>
-    </a>
-    
-    <a href="rhythm-game/" class="card">
-        <span>🎵</span>
-        <h2>Rhythm Game</h2>
-        <p>WISHの曲に合わせてリズムを刻もう！</p>
-    </a>
+            <a href="cafemap/" class="card">
+                <span>☕</span>
+                <h2>Cafe Map</h2>
+                <p>お気に入りのカフェをチェックしよう！</p>
+            </a>
 
-    <div class="card" style="border-bottom-color: #eee; opacity: 0.6;">
-        <span>🚀</span>
-        <h2>Coming Soon...</h2>
-        <p>新しいツールを開発中です！</p>
-    </div>
+            <a href="typing-game/" class="card">
+                <span>⌨️</span>
+                <h2>Typing Game</h2>
+                <p>タイピング練習してファンレターを書こう！</p>
+            </a>
 
-    
-</div>
+            <a href="rhythm-game/" class="card">
+                <span>🎵</span>
+                <h2>Rhythm Game</h2>
+                <p>WISHの曲に合わせてリズムを刻もう！</p>
+            </a>
 
-<div class="insta-section">
-    <h2 style="color:var(--pink);">💖 Favorite Idol 💖</h2>
-    <p>NCT WISHの最新投稿をチェック！</p>
-    <div class="insta-container">
-        <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="https://www.instagram.com/p/DOlCfhPiWgW/?img_index=1" data-instgrm-version="14" style="width:100%; border:0; margin:0;"></blockquote>
-        <script async src="//www.instagram.com/embed.js"></script>
-    </div>
-    <a href="https://www.instagram.com/nctwish_official/" target="_blank" class="insta-link-btn">Official Instagram 📸</a>
-</div>
+            <div class="card" style="border-bottom-color: #eee; opacity: 0.6">
+                <span>🚀</span>
+                <h2>Coming Soon...</h2>
+                <p>新しいツールを開発中です！</p>
+            </div>
+        </div>
 
-<div class="profile">
-    <span style="font-size: 4rem;">🐰</span>
-    <h2>About Me</h2>
-    <p>Gongcha です。<br>プログラミングを勉強しながら、<br>全力で推し活を楽しんでいます！</p>
-</div>
+        <div class="insta-section">
+            <h2 style="color: var(--pink)">💖 Favorite Idol 💖</h2>
+            <p>NCT WISHの最新投稿をチェック！</p>
+            <div class="insta-container">
+                <blockquote
+                    class="instagram-media"
+                    data-instgrm-captioned
+                    data-instgrm-permalink="https://www.instagram.com/p/DOlCfhPiWgW/?img_index=1"
+                    data-instgrm-version="14"
+                    style="width: 100%; border: 0; margin: 0"
+                ></blockquote>
+                <script async src="//www.instagram.com/embed.js"></script>
+            </div>
+            <a href="https://www.instagram.com/nctwish_official/" target="_blank" class="insta-link-btn">Official Instagram 📸</a>
+        </div>
 
-<div class="github-footer">
-    <a href="https://github.com/Iori-Gonda" target="_blank" class="github-btn">
-        <span>🐙</span> Check my GitHub (Gongcha)
-    </a>
-</div>
+        <div class="profile">
+            <span style="font-size: 4rem">🐰</span>
+            <h2>About Me</h2>
+            <p>Gongcha です。<br />プログラミングを勉強しながら、<br />全力で推し活を楽しんでいます！</p>
+        </div>
 
-<footer style="text-align: center; padding: 20px; color: #bbb; font-size: 0.8rem;">
-    &copy; 2025 Gongcha Portfolio
-</footer>
+        <div class="github-footer">
+            <a href="https://github.com/Iori-Gonda" target="_blank" class="github-btn"> <span>🐙</span> Check my GitHub (Gongcha) </a>
+        </div>
 
-</body>
+        <footer style="text-align: center; padding: 20px; color: #bbb; font-size: 0.8rem">&copy; 2025 Gongcha Portfolio</footer>
+    </body>
 </html>
