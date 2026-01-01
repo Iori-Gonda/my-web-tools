@@ -311,13 +311,7 @@
             <h3>✨ カフェを追加</h3>
             <input type="text" id="new-cafe-name" placeholder="カフェの名前" />
             <input type="text" id="new-cafe-insta" placeholder="Instagram 投稿URL" />
-            <button
-                class="nav-btn"
-                style="background: var(--cafe-dark); color: white; display: inline-flex; margin-left: 10px"
-                onclick="addNewCafe()"
-            >
-                追加
-            </button>
+            <button class="nav-btn" style="background: var(--cafe-dark); color: white; display: inline-flex; margin-left: 10px" onclick="addNewCafe()">追加</button>
         </div>
 
         <div id="display-section">
@@ -338,47 +332,21 @@
             "
         >
             <p style="font-size: 0.75rem; font-weight: bold; opacity: 0.6; margin-bottom: 8px">📱 スマホと同期（魔法の合言葉）</p>
-            <textarea
+            <textarea>
                 id="sync-text"
                 placeholder="ここに合言葉を貼るか、生成してね"
-                style="
-                    width: 100%;
-                    height: 50px;
-                    font-size: 0.7rem;
-                    border-radius: 10px;
-                    border: 1px solid #ddd;
-                    padding: 5px;
-                    opacity: 0.6;
-                "
-            ></textarea>
+                style="width: 100%; height: 50px; font-size: 0.7rem; border-radius: 10px; border: 1px solid #ddd; padding: 5px; opacity: 0.6"
+            </textarea>
             <div style="display: flex; gap: 5px; margin-top: 8px">
                 <button
                     onclick="exportData()"
-                    style="
-                        flex: 1;
-                        font-size: 0.7rem;
-                        padding: 8px;
-                        border-radius: 10px;
-                        border: none;
-                        background: var(--cafe-latte);
-                        color: white;
-                        cursor: pointer;
-                    "
+                    style="flex: 1; font-size: 0.7rem; padding: 8px; border-radius: 10px; border: none; background: var(--cafe-latte); color: white; cursor: pointer"
                 >
                     📜 合言葉をコピー
                 </button>
                 <button
                     onclick="importData()"
-                    style="
-                        flex: 1;
-                        font-size: 0.7rem;
-                        padding: 8px;
-                        border-radius: 10px;
-                        border: none;
-                        background: var(--mint);
-                        color: #2e7d32;
-                        cursor: pointer;
-                    "
+                    style="flex: 1; font-size: 0.7rem; padding: 8px; border-radius: 10px; border: none; background: var(--mint); color: #2e7d32; cursor: pointer"
                 >
                     🔮 同期を実行
                 </button>

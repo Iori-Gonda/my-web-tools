@@ -402,9 +402,7 @@
                 let stage = M1_STAGES[currentM1Stage];
 
                 // --- サンパチマイク演出 ---
-                addLog(
-                    "<div style='color:white; background:#555; text-align:center; padding:5px;'> ｜ <br> ｜ <br> 「…どうもー！」 </div>"
-                );
+                addLog("<div style='color:white; background:#555; text-align:center; padding:5px;'> ｜ <br> ｜ <br> 「…どうもー！」 </div>");
                 addLog(`<div style="border: 2px double gold; padding: 10px; background:#444;">【M-1 ${stage.name}】 ${stage.msg}</div>`);
 
                 let score = (state.skill.boke + state.skill.tsukkomi) * (state.mood / 100) * state.outfit.synergy + state.outfit.bonus;
@@ -499,9 +497,7 @@
                                     const randomColor = colors[Math.floor(Math.random() * colors.length)];
                                     const randomIcon = icons[Math.floor(Math.random() * icons.length)];
                                     const spaces = "&nbsp;".repeat(Math.floor(Math.random() * 20));
-                                    addLog(
-                                        `<div style="color:${randomColor}; font-size:1.2em;">${spaces}${randomIcon} ✨ ${randomIcon}${spaces}</div>`
-                                    );
+                                    addLog(`<div style="color:${randomColor}; font-size:1.2em;">${spaces}${randomIcon} ✨ ${randomIcon}${spaces}</div>`);
                                 }, i * interval);
                             }
 
@@ -582,10 +578,7 @@
 
                 // ★修正: 表示するメッセージを分岐
                 let mainMsg = type === "victory" ? "今日、人生が変わった。" : "「…変わんねえな、人生。」";
-                let subMsg =
-                    type === "victory"
-                        ? "ついに頂点へ。鳴り止まない拍手。"
-                        : `${M1_STAGES[currentM1Stage].name}敗退。人生を変えに来たはずだった。`;
+                let subMsg = type === "victory" ? "ついに頂点へ。鳴り止まない拍手。" : `${M1_STAGES[currentM1Stage].name}敗退。人生を変えに来たはずだった。`;
 
                 // 2. スタッフロールの内容を流す
                 staffRoll.innerHTML = `
@@ -614,8 +607,7 @@
                 // 8秒後に再スタート確認
                 setTimeout(() => {
                     // ★修正: 終わりの問いかけもエモく変更
-                    let confirmMsg =
-                        type === "victory" ? "伝説は幕を閉じました。もう一度、若手時代から始めますか？" : "人生、変えに行きますか？";
+                    let confirmMsg = type === "victory" ? "伝説は幕を閉じました。もう一度、若手時代から始めますか？" : "人生、変えに行きますか？";
                     if (confirm(confirmMsg)) {
                         location.reload();
                     }

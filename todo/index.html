@@ -385,50 +385,15 @@
             <div id="list"></div>
 
             <!-- 合言葉を入力・出力するためのエリア -->
-            <div
-                class="magic-sync"
-                style="
-                    margin-top: 30px;
-                    padding: 15px;
-                    border: 1px solid rgba(168, 85, 247, 0.3);
-                    border-radius: 20px;
-                    background: rgba(255, 255, 255, 0.2);
-                "
-            >
-                <p
-                    style="
-                        font-size: 0.8rem;
-                        margin: 0 0 10px 0;
-                        color: var(--primary);
-                        font-weight: bold;
-                        text-align: center;
-                        opacity: 0.6;
-                    "
-                >
-                    ✨ データの引継ぎ（魔法の合言葉）
-                </p>
+            <div class="magic-sync" style="margin-top: 30px; padding: 15px; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 20px; background: rgba(255, 255, 255, 0.2)">
+                <p style="font-size: 0.8rem; margin: 0 0 10px 0; color: var(--primary); font-weight: bold; text-align: center; opacity: 0.6">✨ データの引継ぎ（魔法の合言葉）</p>
                 <textarea
                     id="sync-text"
                     placeholder="ここに合言葉を貼り付けるか、書き出しボタンを押してね"
-                    style="
-                        width: 100%;
-                        height: 60px;
-                        font-size: 0.7rem;
-                        margin: 5px 0;
-                        opacity: 0.5;
-                        border: 1px solid rgba(0, 0, 0, 0.1);
-                        border-radius: 10px;
-                        outline: none;
-                    "
-                >
-                </textarea>
+                    style="width: 100%; height: 60px; font-size: 0.7rem; margin: 5px 0; opacity: 0.5; border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 10px; outline: none"
+                ></textarea>
                 <div style="display: flex; gap: 8px; margin-top: 10px">
-                    <button
-                        onclick="exportData()"
-                        style="flex: 1; padding: 10px; font-size: 0.7rem; background: var(--secondary); color: var(--text)"
-                    >
-                        📜 合言葉を作る
-                    </button>
+                    <button onclick="exportData()" style="flex: 1; padding: 10px; font-size: 0.7rem; background: var(--secondary); color: var(--text)">📜 合言葉を作る</button>
                     <button onclick="importData()" style="flex: 1; padding: 10px; font-size: 0.7rem">🔮 合言葉を唱える</button>
                 </div>
             </div>
@@ -648,8 +613,7 @@
                 list.innerHTML = ""; // 一旦リストを空にする
 
                 const now = new Date();
-                const today =
-                    now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0");
+                const today = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0");
 
                 let hasOverdue = false; // 期限切れがあるかどうかの目印
 
@@ -673,12 +637,8 @@
                     </div>
                 </div>
                 <div style="display: flex; gap: 5px;">
-                    <button style="background:none; color:var(--primary); font-size:1.2rem; padding:0 5px; width:auto;" onclick="addSub(${
-                        t.id
-                    })">＋</button>
-                    <button style="background:none; color:var(--primary); font-size:1.1rem; padding:0 5px; width:auto;" onclick="editTask(${
-                        t.id
-                    })">✎</button>
+                    <button style="background:none; color:var(--primary); font-size:1.2rem; padding:0 5px; width:auto;" onclick="addSub(${t.id})">＋</button>
+                    <button style="background:none; color:var(--primary); font-size:1.1rem; padding:0 5px; width:auto;" onclick="editTask(${t.id})">✎</button>
                     <button style="background:none; color:#ffb6c1; font-size:1.5rem; padding:0 5px; width:auto; line-height:1;" onclick="event.stopPropagation(); remove(${
                         t.id
                     })">×</button>
@@ -694,14 +654,10 @@
                             (s) => `
                         <div class="subtask-item" style="display: flex; align-items: center; gap: 8px;">
                             <input type="checkbox" ${s.done ? "checked" : ""} onchange="toggleSub(${t.id}, ${s.id}, event)">
-                            <span style="flex:1; font-size:0.9rem; ${
-                                s.done ? "text-decoration:line-through; opacity:0.5" : ""
-                            }" onclick="editSub(${t.id}, ${s.id})">
+                            <span style="flex:1; font-size:0.9rem; ${s.done ? "text-decoration:line-through; opacity:0.5" : ""}" onclick="editSub(${t.id}, ${s.id})">
                                 ${s.text}
                             </span>
-                            <button style="background:none; color:#ffb6c1; border:none; cursor:pointer; font-size:1rem;" onclick="removeSub(${
-                                t.id
-                            }, ${s.id})">×</button>
+                            <button style="background:none; color:#ffb6c1; border:none; cursor:pointer; font-size:1rem;" onclick="removeSub(${t.id}, ${s.id})">×</button>
                         </div>
                     `
                         )

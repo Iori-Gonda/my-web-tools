@@ -254,12 +254,8 @@
             <div class="btn-group">
                 <button class="magic-btn" onclick="spawnCloud()">ふわふわ雲を生成 ☁️</button>
                 <button class="magic-btn" onclick="rollSlot()">マジカルスロット 🎰</button>
-                <button class="magic-btn" style="background: #ff69b4; color: white" onclick="createHeartBurst()">
-                    褒め言葉をもらう 💖
-                </button>
-                <button class="magic-btn" style="background: #8b5cf6; color: white" onclick="startUnicornStampede()">
-                    ユニコーンを走らせる 🦄💨
-                </button>
+                <button class="magic-btn" style="background: #ff69b4; color: white" onclick="createHeartBurst()">褒め言葉をもらう 💖</button>
+                <button class="magic-btn" style="background: #8b5cf6; color: white" onclick="startUnicornStampede()">ユニコーンを走らせる 🦄💨</button>
                 <button class="magic-btn" onclick="changeLuckyColor()">今日のラッキーカラー 🎨</button>
                 <button class="magic-btn" style="background: #555; color: white" onclick="toggleManual(true)">公式トリセツを読む 📖</button>
             </div>
@@ -278,15 +274,13 @@
                 <br />
                 <p>
                     <strong>2. 推奨される利用シーン</strong><br />
-                    ・現実逃避に:
-                    仕事や勉強で行き詰まった時、このサイトを開いて「あ、世の中にはこんなに無駄なものがあってもいいんだ」と心を落ち着かせてください。<br />
+                    ・現実逃避に: 仕事や勉強で行き詰まった時、このサイトを開いて「あ、世の中にはこんなに無駄なものがあってもいいんだ」と心を落ち着かせてください。<br />
                     ・思考のデトックス: 情報過多な現代において、情報を一切与えてくれないこのサイトは、脳の休息に最適です。
                 </p>
                 <br />
                 <p>
                     <strong>3. 禁止事項</strong><br />
-                    ・実用性を求めること:
-                    「役に立つ情報を載せよう」とか「SEO対策をしよう」などと考えた瞬間、このサイトの魔法は解けてしまいます。<br />
+                    ・実用性を求めること: 「役に立つ情報を載せよう」とか「SEO対策をしよう」などと考えた瞬間、このサイトの魔法は解けてしまいます。<br />
                     ・目的を持ってアクセスすること: 「なんとなく開く」のが正解です。
                 </p>
                 <br />
@@ -404,12 +398,7 @@
 
                 resetIdleTimer();
                 const rect = unicornEmoji.getBoundingClientRect();
-                if (
-                    e.clientX > rect.left - 50 &&
-                    e.clientX < rect.right + 50 &&
-                    e.clientY > rect.top - 50 &&
-                    e.clientY < rect.bottom + 50
-                ) {
+                if (e.clientX > rect.left - 50 && e.clientX < rect.right + 50 && e.clientY > rect.top - 50 && e.clientY < rect.bottom + 50) {
                     if (Math.abs(e.clientX - lastMouseX) > 15 && !isBlushing) {
                         petNadeCount++;
                         if (petNadeCount > 5) {

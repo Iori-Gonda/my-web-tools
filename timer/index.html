@@ -303,18 +303,14 @@
                 <button class="btn-start" id="startBtn" onclick="toggleTimer()">START</button>
                 <button style="background: var(--secondary)" onclick="recordLap()">LAP</button>
                 <button style="background: #eee" onclick="resetTimer()">RESET</button>
-                <button style="background: #fca5a5; color: white; font-size: 0.7rem; grid-column: span 2" onclick="resetAllMagicData()">
-                    ✨ 魔法の力をリセット（全初期化）
-                </button>
+                <button style="background: #fca5a5; color: white; font-size: 0.7rem; grid-column: span 2" onclick="resetAllMagicData()">✨ 魔法の力をリセット（全初期化）</button>
             </div>
 
             <div class="magic-section">
                 <div class="status-grid">
                     <div>✨ 集中Lv: <span id="lv-focus">1</span></div>
                     <div>📖 知識EXP: <span id="exp-knowledge">0</span></div>
-                    <div style="grid-column: span 2; border-top: 1px solid #eee; margin-top: 5px; padding-top: 5px">
-                        📅 今日の合計: <span id="today-total">00:00:00</span>
-                    </div>
+                    <div style="grid-column: span 2; border-top: 1px solid #eee; margin-top: 5px; padding-top: 5px">📅 今日の合計: <span id="today-total">00:00:00</span></div>
                 </div>
 
                 <div class="garden-display" id="garden">🌱 (庭を育てよう)</div>
@@ -330,41 +326,12 @@
             <div class="lap-list" id="laps"></div>
 
             <!-- 合言葉を入力・出力するためのエリア -->
-            <div
-                class="magic-sync"
-                style="
-                    margin-top: 30px;
-                    padding: 15px;
-                    border: 1px solid rgba(168, 85, 247, 0.3);
-                    border-radius: 20px;
-                    background: rgba(255, 255, 255, 0.2);
-                "
-            >
-                <p
-                    style="
-                        font-size: 0.8rem;
-                        margin: 0 0 10px 0;
-                        color: var(--primary);
-                        font-weight: bold;
-                        text-align: center;
-                        opacity: 0.6;
-                    "
-                >
-                    ✨ データの引継ぎ（魔法の合言葉）
-                </p>
+            <div class="magic-sync" style="margin-top: 30px; padding: 15px; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 20px; background: rgba(255, 255, 255, 0.2)">
+                <p style="font-size: 0.8rem; margin: 0 0 10px 0; color: var(--primary); font-weight: bold; text-align: center; opacity: 0.6">✨ データの引継ぎ（魔法の合言葉）</p>
                 <textarea
                     id="sync-text"
                     placeholder="ここに合言葉を貼り付けるか、書き出しボタンを押してね"
-                    style="
-                        width: 100%;
-                        height: 60px;
-                        font-size: 0.7rem;
-                        margin: 5px 0;
-                        opacity: 0.5;
-                        border: 1px solid rgba(0, 0, 0, 0.1);
-                        border-radius: 10px;
-                        outline: none;
-                    "
+                    style="width: 100%; height: 60px; font-size: 0.7rem; margin: 5px 0; opacity: 0.5; border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 10px; outline: none"
                 >
                 </textarea>
                 <div style="display: flex; gap: 5px">
